@@ -415,7 +415,7 @@ def apply_chart_style(fig, **kwargs):
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
     # Read lang/format from session_state (set in Settings page)
-    lang_key = st.session_state.get("lang_select", "正體中文")
+    lang_key = st.session_state.get("lang_select", "English")
     T = LANG[lang_key]
     st.markdown(
         f"<p style='font-size:1.05rem;font-weight:700;color:#111827;"
@@ -425,8 +425,8 @@ with st.sidebar:
     st.markdown("<hr style='margin:0 0 0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
     page = st.radio("nav", T["pages"], label_visibility="collapsed")
 
-T = LANG[st.session_state.get("lang_select", "正體中文")]
-lang_key = st.session_state.get("lang_select", "正體中文")
+T = LANG[st.session_state.get("lang_select", "English")]
+lang_key = st.session_state.get("lang_select", "English")
 use_abbr = st.session_state.get("name_fmt", "abbr") == "abbr"
 df = load_data()
 
@@ -737,8 +737,13 @@ elif page == T["pages"][4]:
     bad_arm = df[~df["arm"].isin(["", "L", "R"])]
     if not bad_arm.empty:
         issues.append((T["bad_arm"], bad_arm))
+    # Non-standard: raw_name exists but is not found in the alias map at all
+    names_df_dq = load_vaccine_names()
+    alias_map_dq = build_alias_map(names_df_dq)
+    known_keys = set(alias_map_dq.keys())
     unstd = df[
-        (df["raw_name"].str.strip() != "") & (df["name"] == df["raw_name"])
+        (df["raw_name"].str.strip() != "") &
+        (~df["raw_name"].str.strip().str.lower().isin(known_keys))
     ][["id", "_display_name", "raw_name", "date"]].drop_duplicates(subset=["raw_name"])
     if not unstd.empty:
         issues.append((T["dq_unstd"], unstd))
