@@ -1,0 +1,51 @@
+canonical_zh,abbr_zh,canonical_en,abbr_en,aliases
+乙型肝炎,乙肝,Hepatitis B,HepB,乙肝|乙肝灭活|乙肝疫苗|乙型肝炎疫苗|乙肝减毒|乙肝重组|乙肝(基因重组)|乙肝灭活疫苗|HepB|Hep B|Hepatitis B Vaccine|Engerix-B|Recombivax HB|Heplisav-B|PreHevbrio|HBVAXPRO
+甲型肝炎,甲肝,Hepatitis A,HepA,甲肝|甲肝灭活|甲肝疫苗|甲型肝炎疫苗|甲肝减毒|HepA|Hep A|Hepatitis A Vaccine|Havrix|Vaqta|Avaxim
+甲乙型肝炎,甲乙肝,Hepatitis A+B,HepA-B,甲乙肝|甲乙肝联合|甲乙型肝炎联合疫苗|HepA-HepB|Twinrix
+卡介苗,卡介苗,BCG,BCG,BCG疫苗|结核疫苗|卡介苗(BCG)|Bacillus Calmette-Guerin|Bacille Calmette-Guérin
+脊髓灰质炎,脊灰,Polio,IPV/OPV,脊灰|脊灰减毒|脊灰灭活|脊髓灰质炎疫苗|脊灰(减毒)|脊灰(灭活)|OPV|IPV|Polio|Poliovirus Vaccine|IPOL|Pediarix
+百日咳白喉破伤风,百白破,Diphtheria-Tetanus-Pertussis,DTaP,百白破|百白破疫苗|DTP|DTaP|白百破|百日咳白喉破伤风疫苗|Infanrix|Daptacel|Pediarix|Pentacel
+白喉破伤风,白破,Diphtheria-Tetanus (adult),Td,白破|白破疫苗|DT|Td|Tenivac|Decavac
+破伤风白喉百日咳(成人),百白破(成人),Tetanus-Diphtheria-Pertussis (adult),Tdap,Tdap疫苗|百白破(成人)|Boostrix|Adacel
+破伤风,破伤风,Tetanus,TT,破伤风疫苗|TT|Tetanus Toxoid|破伤风类毒素
+麻疹,麻疹,Measles,MV,麻疹疫苗|Measles Vaccine
+腮腺炎,腮腺炎,Mumps,MuV,流行性腮腺炎|腮腺炎疫苗|Mumps Vaccine
+风疹,风疹,Rubella,RV,风疹疫苗|Rubella Vaccine
+麻疹腮腺炎风疹,麻腮风,Measles-Mumps-Rubella,MMR,麻腮风|麻风腮|麻疹腮腺炎风疹联合疫苗|MMR疫苗|M-M-R II|Priorix
+麻疹风疹,麻风,Measles-Rubella,MR,麻风|麻疹风疹联合疫苗|MR疫苗
+麻疹腮腺炎风疹水痘,麻腮风水痘,Measles-Mumps-Rubella-Varicella,MMRV,麻腮风水痘|ProQuad|Priorix-Tetra
+水痘,水痘,Varicella,VZV,水痘疫苗|Varivax|Varilrix|Okavax
+带状疱疹,带状疱疹,Zoster / Shingles,RZV,带状疱疹疫苗|Shingrix|Zostavax|RZV|ZVL
+乙型脑炎,乙脑,Japanese Encephalitis,JEV,乙脑|乙脑减毒|乙脑灭活|乙型脑炎疫苗|乙脑(减毒)|乙脑(灭活)|JE|JE-VAX|Ixiaro|Imojev|SA14-14-2
+流行性脑脊髓膜炎A群,流脑A,Meningococcal A,MenA,流脑A|A群流脑|A群脑膜炎球菌疫苗|MenA
+流行性脑脊髓膜炎A+C群,流脑AC,Meningococcal A+C,MenAC,流脑A+C|AC流脑|A+C群流脑|A群C群脑膜炎球菌疫苗|MenAC
+流行性脑脊髓膜炎ACYW群,流脑ACYW,Meningococcal ACYW,MenACYW,ACYW流脑|流脑ACYW|四价流脑|ACYW135流脑|MenACYW|Menactra|Menveo|MenQuadfi|Nimenrix
+流行性脑脊髓膜炎B群,流脑B,Meningococcal B,MenB,流脑B|B群流脑|MenB|Bexsero|Trumenba
+b型流感嗜血杆菌,Hib,Haemophilus influenzae type b,Hib,HIB|Hib疫苗|b型流感嗜血杆菌疫苗|流感嗜血杆菌|ActHIB|PedvaxHIB|Hiberix
+肺炎球菌(多糖),肺炎(多糖),Pneumococcal Polysaccharide,PPSV23,肺炎|肺炎多糖|23价肺炎|PPSV23|Pneumovax 23|Pneumovax23
+肺炎球菌(结合),肺炎(结合),Pneumococcal Conjugate,PCV,肺炎结合|PCV7|PCV10|PCV13|PCV15|PCV20|Prevnar 7|Prevnar 13|Prevnar13|Prevnar 15|Prevnar 20|Synflorix|Vaxneuvance
+流行性感冒,流感,Influenza,Flu,流感|流感疫苗|流行性感冒疫苗|Flu|Influenza Vaccine|Fluzone|Flucelvax|Fluarix|FluLaval|Afluria|Fluad|Flublok|LAIV|FluMist|华兰生物流感|深圳巴斯德流感
+新型冠状病毒,新冠,COVID-19,COVID-19,新冠|新冠疫苗|COVID|COVID-19疫苗|SARS-CoV-2疫苗|Comirnaty|Spikevax|Vaxzevria|Covishield|Covaxin|Sinovac|CoronaVac|BBIBP-CorV|Sinopharm|Janssen|Johnson COVID|mNexspike|Nuvaxovid|Novavax
+轮状病毒,轮状病毒,Rotavirus,RV5/RV1,轮状病毒疫苗|Rota|RotaTeq|Rotarix
+人乳头瘤病毒,HPV,Human Papillomavirus,HPV,HPV疫苗|人乳头瘤病毒疫苗|宫颈癌疫苗|Gardasil|Gardasil 9|Gardasil9|Cervarix|Cecolin|Walrinvax
+狂犬病,狂犬,Rabies,RABV,狂犬|狂犬病疫苗|Rabies Vaccine|Imovax|RabAvert|Verorab|Speeda
+黄热病,黄热,Yellow Fever,YF,黄热|黄热病疫苗|YF-VAX|Stamaril
+伤寒,伤寒,Typhoid,TY,伤寒疫苗|Typhoid Vaccine|Typhim Vi|Vivotif|Typherix
+霍乱,霍乱,Cholera,CVD,霍乱疫苗|Dukoral|Shanchol|Vaxchora
+流行性出血热,出血热,Hemorrhagic Fever (HFRS),HFRS,出血热|肾综合征出血热疫苗|HFRS疫苗|汉坦病毒疫苗
+钩端螺旋体,钩体,Leptospirosis,Lepto,钩体|钩端螺旋体疫苗
+炭疽,炭疽,Anthrax,AVA,炭疽疫苗|BioThrax
+天花/猴痘,猴痘,Smallpox / Mpox,JYNNEOS,天花|猴痘|痘苗|Smallpox Vaccine|JYNNEOS|ACAM2000|Imvamune|Imvanex
+登革热,登革热,Dengue,DENV,登革热疫苗|Dengvaxia|Qdenga|TAK-003
+疟疾,疟疾,Malaria,RTS,疟疾疫苗|Mosquirix|R21
+呼吸道合胞病毒,RSV,Respiratory Syncytial Virus,RSV,RSV疫苗|Abrysvo|Arexvy|mRESVIA
+甲型流感H5N1,H5N1,Influenza H5N1,H5N1,H5N1|禽流感疫苗|Audenz
+甲型流感H1N1,H1N1,Influenza H1N1,H1N1,H1N1|甲流|猪流感疫苗
+腺病毒,腺病毒,Adenovirus,AdV,腺病毒疫苗|Adenovirus Vaccine
+鼠疫,鼠疫,Plague,YPV,鼠疫疫苗
+布鲁氏菌,布鲁氏菌,Brucellosis,Brucella,布鲁氏菌疫苗
+森林脑炎,蜱传脑炎,Tick-borne Encephalitis,TBE,蜱传脑炎|TBE|FSME-Immun|Encepur|TicoVac
+甲型肝炎+伤寒,甲肝+伤寒,Hepatitis A + Typhoid,HepA-TY,甲肝伤寒|ViATIM|Hepatyrix
+脑膜炎球菌+Hib,流脑+Hib,Meningococcal C + Hib,MenC-Hib,Menitorix
+百白破+脊灰+Hib,五联,DTaP-IPV-Hib,5-in-1,五联疫苗|Pentacel|Infanrix-IPV+Hib
+百白破+脊灰+Hib+乙肝,六联,DTaP-IPV-Hib-HepB,6-in-1,六联疫苗|Hexyon|Infanrix Hexa|Vaxelis

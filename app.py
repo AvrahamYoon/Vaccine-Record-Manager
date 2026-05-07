@@ -17,7 +17,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 
 # ── Config ────────────────────────────────────────────────────────────────────
 DATA_FILE = Path("vaccine_records_cleaned.csv")
-COLUMNS = ["id", "name", "dose", "date", "manufacturer", "batch", "arm", "provider"]
+NAMES_FILE = Path("vaccine_names.csv")
+# raw_name stores the original imported name; name stores the canonical key
+COLUMNS = ["id", "name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]
 ARM_OPTIONS = ["", "L", "R"]
 
 st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide")
@@ -26,7 +28,7 @@ st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide"
 LANG = {
     "English": {
         "app_title": "Vaccine Records",
-        "pages": ["Dashboard", "Records", "Add Record", "Reports", "Data Quality", "Export"],
+        "pages": ["Dashboard", "Records", "Reports", "Export", "Settings"],
         "total": "Total Doses", "kinds": "Vaccine Types", "last_date": "Last Vaccination",
         "left_arm": "Left Arm (L)", "right_arm": "Right Arm (R)",
         "yearly_chart": "Doses per Year", "arm_chart": "Arm Distribution",
@@ -40,29 +42,36 @@ LANG = {
         "delete_btn": "🗑️ Delete", "not_found": "ID not found:",
         "confirm_del": "Confirm delete", "yes_del": "✅ Confirm", "cancel": "❌ Cancel",
         "deleted": "deleted",
-        "add_title": "Add Vaccination Record",
-        "vac_name_input": "Vaccine Name *", "dose_label": "Dose *",
+        "add_title": "➕ Add Record", "dose_label": "Dose *",
         "date_label": "Date *", "mfr": "Manufacturer", "batch": "Batch No.",
-        "add_btn": "➕ Add Record", "name_empty": "Vaccine name is required",
+        "add_btn": "Add Record", "name_empty": "Vaccine name is required",
         "added": "Added: ", "dose_suffix": " (ID=",
         "reports_title": "Reports", "timeline": "Vaccination Timeline",
         "vac_count": "Doses by Vaccine", "provider_stat": "Doses by Provider",
         "yearly_stat": "Doses per Year", "arm_ratio": "Arm Distribution",
-        "dq_title": "Data Quality", "dq_ok": "✅ No issues found.",
-        "dup_id": "Duplicate IDs", "bad_date": "Invalid or missing date",
-        "bad_dose": "Non-numeric dose", "bad_arm": "Invalid arm value (not L/R/empty)",
         "export_title": "Export Data", "export_info": "Total",
         "export_cols": "records  ·  Columns: ", "download": "⬇️ Download CSV",
         "col_id": "ID", "col_name": "Vaccine", "col_dose": "Dose",
         "col_date": "Date (YYYY-MM-DD)", "col_mfr": "Manufacturer",
         "col_batch": "Batch", "col_arm": "Arm", "col_prov": "Provider",
-        "lang_label": "Language",
         "download_pdf": "⬇️ Download PDF", "pdf_title": "Vaccination Record",
         "pdf_generated": "Generated:", "pdf_total": "Total records:",
+        "col_raw": "Original Name",
+        "settings_title": "Settings",
+        "lang_label": "Language", "name_fmt_label": "Vaccine name display",
+        "name_fmt_abbr": "Abbreviation (default)", "name_fmt_full": "Full name",
+        "dq_section": "Data Quality", "dq_ok": "✅ No issues found.",
+        "dup_id": "Duplicate IDs", "bad_date": "Invalid or missing date",
+        "bad_dose": "Non-numeric dose", "bad_arm": "Invalid arm value (not L/R/empty)",
+        "dq_unstd": "Non-standard vaccine names (not in vaccine_names.csv)",
+        "vac_names_title": "Vaccine Name Reference",
+        "vac_names_caption": "Edit vaccine_names.csv to add aliases or new vaccines.",
+        "add_vac_select": "Select vaccine", "add_vac_custom": "Custom name",
+        "vac_name_input": "Vaccine Name *",
     },
     "正體中文": {
         "app_title": "疫苗接種記錄",
-        "pages": ["總覽", "記錄管理", "新增記錄", "報表", "資料品質", "匯出"],
+        "pages": ["總覽", "記錄管理", "報表", "匯出", "設定"],
         "total": "總接種次數", "kinds": "疫苗種類", "last_date": "最近接種日期",
         "left_arm": "左臂 (L)", "right_arm": "右臂 (R)",
         "yearly_chart": "每年接種次數", "arm_chart": "左右臂比例",
@@ -76,25 +85,32 @@ LANG = {
         "delete_btn": "🗑️ 刪除", "not_found": "找不到 ID：",
         "confirm_del": "確認刪除", "yes_del": "✅ 確認", "cancel": "❌ 取消",
         "deleted": "已刪除",
-        "add_title": "新增接種記錄",
-        "vac_name_input": "疫苗名稱 *", "dose_label": "劑次 *",
+        "add_title": "➕ 新增記錄", "dose_label": "劑次 *",
         "date_label": "接種日期 *", "mfr": "生產企業", "batch": "批號",
-        "add_btn": "➕ 新增記錄", "name_empty": "疫苗名稱不能為空",
+        "add_btn": "新增記錄", "name_empty": "疫苗名稱不能為空",
         "added": "已新增：", "dose_suffix": "（ID=",
         "reports_title": "報表", "timeline": "接種時間線",
         "vac_count": "每種疫苗接種次數", "provider_stat": "接種單位統計",
         "yearly_stat": "每年接種次數", "arm_ratio": "左右臂接種比例",
-        "dq_title": "資料品質檢查", "dq_ok": "✅ 資料品質良好，未發現問題！",
-        "dup_id": "重複 ID", "bad_date": "日期缺失或格式錯誤",
-        "bad_dose": "劑次非數字", "bad_arm": "接種部位非 L/R/空",
         "export_title": "匯出資料", "export_info": "共",
         "export_cols": "筆記錄　欄位：", "download": "⬇️ 下載 CSV",
         "col_id": "ID", "col_name": "疫苗名稱", "col_dose": "劑次",
         "col_date": "日期 (YYYY-MM-DD)", "col_mfr": "生產企業",
         "col_batch": "批號", "col_arm": "接種部位", "col_prov": "接種單位",
-        "lang_label": "語言",
         "download_pdf": "⬇️ 下載 PDF", "pdf_title": "疫苗接種記錄",
         "pdf_generated": "產生時間：", "pdf_total": "共記錄：",
+        "col_raw": "原始名稱",
+        "settings_title": "設定",
+        "lang_label": "語言", "name_fmt_label": "疫苗名稱顯示方式",
+        "name_fmt_abbr": "縮寫（預設）", "name_fmt_full": "全名",
+        "dq_section": "資料品質", "dq_ok": "✅ 資料品質良好，未發現問題！",
+        "dup_id": "重複 ID", "bad_date": "日期缺失或格式錯誤",
+        "bad_dose": "劑次非數字", "bad_arm": "接種部位非 L/R/空",
+        "dq_unstd": "未標準化的疫苗名稱（不在 vaccine_names.csv 中）",
+        "vac_names_title": "疫苗名稱對照表",
+        "vac_names_caption": "編輯 vaccine_names.csv 可新增別名或疫苗。",
+        "add_vac_select": "選擇疫苗", "add_vac_custom": "自訂名稱",
+        "vac_name_input": "疫苗名稱 *",
     },
 }
 
@@ -300,6 +316,39 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+# ── Vaccine name mapping ──────────────────────────────────────────────────────
+@st.cache_data
+def load_vaccine_names() -> pd.DataFrame:
+    """Load vaccine_names.csv; return empty frame if missing."""
+    if not NAMES_FILE.exists():
+        return pd.DataFrame(columns=["canonical_zh", "abbr_zh", "canonical_en", "abbr_en", "aliases"])
+    return pd.read_csv(NAMES_FILE, dtype=str).fillna("")
+
+
+def build_alias_map(names_df: pd.DataFrame) -> dict:
+    """Return {alias_lower: (canonical_zh, abbr_zh, canonical_en, abbr_en)} for fast lookup."""
+    mapping = {}
+    for _, row in names_df.iterrows():
+        zh  = row["canonical_zh"].strip()
+        azh = row.get("abbr_zh", zh).strip() or zh
+        en  = row["canonical_en"].strip()
+        aen = row.get("abbr_en", en).strip() or en
+        # All of: canonical, abbr, and pipe-separated aliases map to the same entry
+        for alias in [zh, azh, en, aen] + [a.strip() for a in row["aliases"].split("|")]:
+            if alias:
+                mapping[alias.lower()] = (zh, azh, en, aen)
+    return mapping
+
+
+def resolve_name(raw: str, alias_map: dict) -> tuple:
+    """Map raw name to (canonical_zh, abbr_zh, canonical_en, abbr_en).
+    Falls back to (raw, raw, raw, raw) if unrecognised."""
+    key = str(raw).strip().lower()
+    if key in alias_map:
+        return alias_map[key]
+    return (raw, raw, raw, raw)
+
+
 # ── Data helpers ──────────────────────────────────────────────────────────────
 def load_data() -> pd.DataFrame:
     if not DATA_FILE.exists():
@@ -317,10 +366,31 @@ def load_data() -> pd.DataFrame:
     df["dose"] = pd.to_numeric(df["dose"], errors="coerce")
     df["arm"] = df["arm"].fillna("").str.strip().str.upper()
     df["arm"] = df["arm"].where(df["arm"].isin(["L", "R"]), "")
+
+    # Apply name mapping: store canonical_zh, abbr_zh, canonical_en, abbr_en
+    names_df = load_vaccine_names()
+    alias_map = build_alias_map(names_df)
+
+    def _resolve(row):
+        raw = row["raw_name"] if str(row["raw_name"]).strip() else row["name"]
+        zh, azh, en, aen = resolve_name(raw, alias_map)
+        return pd.Series({"name": zh, "abbr_zh": azh, "name_en": en, "abbr_en": aen,
+                          "raw_name": raw if raw != zh else row["raw_name"]})
+
+    resolved = df.apply(_resolve, axis=1)
+    df["name"]    = resolved["name"]
+    df["abbr_zh"] = resolved["abbr_zh"]
+    df["name_en"] = resolved["name_en"]
+    df["abbr_en"] = resolved["abbr_en"]
+    df["raw_name"] = resolved["raw_name"]
     return df
 
+
 def save_data(df: pd.DataFrame):
-    df.to_csv(DATA_FILE, index=False)
+    # Drop the runtime-only name_en column before persisting
+    cols_to_save = [c for c in COLUMNS if c in df.columns]
+    df[cols_to_save].to_csv(DATA_FILE, index=False)
+
 
 def next_id(df: pd.DataFrame) -> int:
     if df.empty or df["id"].isna().all():
@@ -344,14 +414,29 @@ def apply_chart_style(fig, **kwargs):
 # ── Sidebar navigation ────────────────────────────────────────────────────────
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
-    lang = st.selectbox("", list(LANG.keys()), key="lang_select")
-    T = LANG[lang]
-    st.markdown(f"<p style='font-size:1.05rem;font-weight:700;color:#111827;margin:1rem 0 0.5rem 0.2rem'>💉 {T['app_title']}</p>", unsafe_allow_html=True)
-    st.markdown("<hr style='margin:0.5rem 0 0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
+    # Read lang/format from session_state (set in Settings page)
+    lang_key = st.session_state.get("lang_select", "正體中文")
+    T = LANG[lang_key]
+    st.markdown(
+        f"<p style='font-size:1.05rem;font-weight:700;color:#111827;"
+        f"margin:0 0 0.8rem 0.2rem'>💉 {T['app_title']}</p>",
+        unsafe_allow_html=True,
+    )
+    st.markdown("<hr style='margin:0 0 0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
     page = st.radio("nav", T["pages"], label_visibility="collapsed")
 
 T = LANG[st.session_state.get("lang_select", "正體中文")]
+lang_key = st.session_state.get("lang_select", "正體中文")
+use_abbr = st.session_state.get("name_fmt", "abbr") == "abbr"
 df = load_data()
+
+# Build _display_name based on language + abbr/full preference
+def _pick_name(row):
+    if lang_key == "English":
+        return row["abbr_en"] if use_abbr else row["name_en"]
+    return row["abbr_zh"] if use_abbr else row["name"]
+
+df["_display_name"] = df.apply(_pick_name, axis=1)
 
 # ════════════════════════════════════════════════════════════════════════════
 # Dashboard
@@ -360,7 +445,7 @@ if page == T["pages"][0]:
     st.title(T["pages"][0])
 
     total = len(df)
-    kinds = df["name"].nunique()
+    kinds = df["_display_name"].nunique()
     last_dt = pd.to_datetime(df["date"], errors="coerce").max()
     last_date_str = last_dt.strftime("%Y-%m-%d") if pd.notna(last_dt) else "—"
     left = int((df["arm"] == "L").sum())
@@ -415,7 +500,7 @@ elif page == T["pages"][1]:
     with st.expander(T["filter"], expanded=True):
         col1, col2, col3, col4, col5 = st.columns(5)
         keyword = col1.text_input(T["keyword"])
-        name_opts = [T["all"]] + sorted(df["name"].dropna().unique().tolist())
+        name_opts = [T["all"]] + sorted(df["_display_name"].dropna().unique().tolist())
         sel_name = col2.selectbox(T["vac_name"], name_opts)
         years = sorted(pd.to_datetime(df["date"], errors="coerce").dt.year.dropna().astype(int).unique().tolist(), reverse=True)
         sel_year = col3.selectbox(T["sel_year"], [T["all"]] + [str(y) for y in years])
@@ -428,7 +513,7 @@ elif page == T["pages"][1]:
         mask = filtered.apply(lambda r: keyword.lower() in " ".join(r.astype(str)).lower(), axis=1)
         filtered = filtered[mask]
     if sel_name != T["all"]:
-        filtered = filtered[filtered["name"] == sel_name]
+        filtered = filtered[filtered["_display_name"] == sel_name]
     if sel_year != T["all"]:
         filtered = filtered[pd.to_datetime(filtered["date"], errors="coerce").dt.year == int(sel_year)]
     if sel_prov != T["all"]:
@@ -443,11 +528,15 @@ elif page == T["pages"][1]:
     filtered = filtered.sort_values("date", ascending=False).reset_index(drop=True)
     st.caption(f"{T['showing']} {len(filtered)} {T['of']} {len(df)} {T['records']}")
 
+    # Show display name column; hide internal name_en and _display_name
+    display_cols = ["id", "_display_name", "raw_name", "dose", "date",
+                    "manufacturer", "batch", "arm", "provider"]
     edited = st.data_editor(
-        filtered, use_container_width=True, num_rows="dynamic",
+        filtered[display_cols], use_container_width=True, num_rows="fixed",
         column_config={
             "id": st.column_config.NumberColumn(T["col_id"], disabled=True),
-            "name": st.column_config.TextColumn(T["col_name"]),
+            "_display_name": st.column_config.TextColumn(T["col_name"], disabled=True),
+            "raw_name": st.column_config.TextColumn(T["col_raw"], disabled=True),
             "dose": st.column_config.NumberColumn(T["col_dose"], min_value=1),
             "date": st.column_config.TextColumn(T["col_date"]),
             "manufacturer": st.column_config.TextColumn(T["col_mfr"]),
@@ -459,9 +548,11 @@ elif page == T["pages"][1]:
     )
 
     if st.button(T["save"], type="primary"):
-        unchanged = df[~df["id"].isin(filtered["id"])]
-        merged = pd.concat([unchanged, edited], ignore_index=True).sort_values("id")
-        save_data(merged)
+        # Merge only the editable fields back; name/raw_name stay unchanged
+        for col in ["dose", "date", "manufacturer", "batch", "arm", "provider"]:
+            df.loc[df["id"].isin(filtered["id"]), col] = \
+                edited.set_index("id")[col].reindex(filtered["id"].values).values
+        save_data(df)
         st.success(T["saved"])
         st.rerun()
 
@@ -477,7 +568,7 @@ elif page == T["pages"][1]:
     if "pending_delete" in st.session_state:
         pid = st.session_state["pending_delete"]
         row = df[df["id"] == pid]
-        st.warning(f"{T['confirm_del']} — ID {pid}: {row['name'].values[0]}, {row['date'].values[0]}")
+        st.warning(f"{T['confirm_del']} — ID {pid}: {row['_display_name'].values[0]}, {row['date'].values[0]}")
         c_yes, c_no, _ = st.columns([1, 1, 5])
         if c_yes.button(T["yes_del"]):
             df = df[df["id"] != pid].reset_index(drop=True)
@@ -489,41 +580,57 @@ elif page == T["pages"][1]:
             del st.session_state["pending_delete"]
             st.rerun()
 
-# ════════════════════════════════════════════════════════════════════════════
-# Add Record
-# ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][2]:
-    st.title(T["add_title"])
-
-    with st.form("add_form", clear_on_submit=True):
-        c1, c2 = st.columns(2)
-        vac_name = c1.text_input(T["vac_name_input"])
-        dose = c2.number_input(T["dose_label"], min_value=1, step=1, value=1)
-        vac_date = c1.date_input(T["date_label"], value=date.today())
-        manufacturer = c2.text_input(T["mfr"])
-        batch = c1.text_input(T["batch"])
-        arm = c2.selectbox(T["arm_label"], ARM_OPTIONS)
-        provider = st.text_input(T["provider_label"])
-        submitted = st.form_submit_button(T["add_btn"], type="primary")
-
-    if submitted:
-        if not vac_name.strip():
-            st.error(T["name_empty"])
+    # ── Add Record (embedded) ─────────────────────────────────────────────
+    st.markdown("---")
+    with st.expander(T["add_title"], expanded=False):
+        names_df = load_vaccine_names()
+        if lang_key == "English":
+            canonical_list = sorted(names_df["canonical_en"].dropna().unique().tolist())
         else:
-            new_row = {
-                "id": next_id(df), "name": vac_name.strip(), "dose": int(dose),
-                "date": vac_date.strftime("%Y-%m-%d"), "manufacturer": manufacturer.strip(),
-                "batch": batch.strip(), "arm": arm, "provider": provider.strip(),
-            }
-            df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-            save_data(df)
-            st.success(f"{T['added']}{vac_name} · dose {dose}{T['dose_suffix']}{new_row['id']})")
-            st.rerun()
+            canonical_list = sorted(names_df["canonical_zh"].dropna().unique().tolist())
+        select_opts = [f"— {T['add_vac_custom']} —"] + canonical_list
+
+        with st.form("add_form", clear_on_submit=True):
+            c1, c2 = st.columns(2)
+            vac_select = c1.selectbox(T["add_vac_select"], select_opts)
+            custom_name = c1.text_input(T["add_vac_custom"], placeholder="e.g. MyVaccine")
+            dose = c2.number_input(T["dose_label"], min_value=1, step=1, value=1)
+            vac_date = c2.date_input(T["date_label"], value=date.today())
+            manufacturer = c1.text_input(T["mfr"])
+            batch = c2.text_input(T["batch"])
+            arm = c1.selectbox(T["arm_label"], ARM_OPTIONS)
+            provider = st.text_input(T["provider_label"])
+            submitted = st.form_submit_button(T["add_btn"], type="primary")
+
+        if submitted:
+            raw_input = custom_name.strip() if vac_select.startswith("—") else vac_select
+            if not raw_input:
+                st.error(T["name_empty"])
+            else:
+                alias_map = build_alias_map(names_df)
+                zh, azh, en, aen = resolve_name(raw_input, alias_map)
+                new_row = {
+                    "id": next_id(df), "name": zh, "raw_name": raw_input,
+                    "dose": int(dose), "date": vac_date.strftime("%Y-%m-%d"),
+                    "manufacturer": manufacturer.strip(), "batch": batch.strip(),
+                    "arm": arm, "provider": provider.strip(),
+                }
+                df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
+                save_data(df)
+                label = aen if (lang_key == "English" and use_abbr) else \
+                        en  if lang_key == "English" else \
+                        azh if use_abbr else zh
+                st.success(f"{T['added']}{label} · {T['dose_label'][:-2]} {dose}{T['dose_suffix']}{new_row['id']})")
+                st.rerun()
+
+# ════════════════════════════════════════════════════════════════════════════
+# (Add Record page removed — merged into Records above)
+# ════════════════════════════════════════════════════════════════════════════
 
 # ════════════════════════════════════════════════════════════════════════════
 # Reports
 # ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][3]:
+elif page == T["pages"][2]:
     st.title(T["reports_title"])
 
     df_r = df.copy()
@@ -534,9 +641,9 @@ elif page == T["pages"][3]:
     st.markdown(f"#### {T['timeline']}")
     timeline = df_r.dropna(subset=["date_parsed"]).sort_values("date_parsed")
     fig_tl = px.scatter(
-        timeline, x="date_parsed", y="name", color="name",
+        timeline, x="date_parsed", y="_display_name", color="_display_name",
         hover_data=["dose", "provider", "arm"],
-        labels={"date_parsed": T["col_date"][:4], "name": T["col_name"]},
+        labels={"date_parsed": T["col_date"][:4], "_display_name": T["col_name"]},
         color_discrete_sequence=px.colors.qualitative.Pastel,
     )
     fig_tl.update_traces(marker=dict(size=11, opacity=0.8, line=dict(width=1, color="#ffffff")))
@@ -546,7 +653,7 @@ elif page == T["pages"][3]:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f"#### {T['vac_count']}")
-        vc = df_r["name"].value_counts().reset_index()
+        vc = df_r["_display_name"].value_counts().reset_index()
         vc.columns = [T["col_name"], T["count"]]
         fig_vc = px.bar(vc, x=T["count"], y=T["col_name"], orientation="h",
                         color_discrete_sequence=[COLORS[0]])
@@ -589,10 +696,34 @@ elif page == T["pages"][3]:
         st.plotly_chart(fig_arm, use_container_width=True)
 
 # ════════════════════════════════════════════════════════════════════════════
-# Data Quality
+# Settings (language, name format, data quality, vaccine reference)
 # ════════════════════════════════════════════════════════════════════════════
 elif page == T["pages"][4]:
-    st.title(T["dq_title"])
+    st.title(T["settings_title"])
+
+    # ── Display preferences ───────────────────────────────────────────────
+    c1, c2 = st.columns(2)
+    new_lang = c1.selectbox(
+        T["lang_label"], list(LANG.keys()),
+        index=list(LANG.keys()).index(lang_key),
+        key="lang_select",
+    )
+    fmt_options = [T["name_fmt_abbr"], T["name_fmt_full"]]
+    current_fmt = "abbr" if use_abbr else "full"
+    fmt_choice = c2.radio(
+        T["name_fmt_label"], fmt_options,
+        index=0 if current_fmt == "abbr" else 1,
+        horizontal=True,
+    )
+    # Persist format choice
+    st.session_state["name_fmt"] = "abbr" if fmt_choice == fmt_options[0] else "full"
+    if new_lang != lang_key:
+        st.rerun()
+
+    st.markdown("---")
+
+    # ── Data quality checks ───────────────────────────────────────────────
+    st.markdown(f"#### {T['dq_section']}")
     issues = []
     dup_ids = df[df["id"].duplicated(keep=False)]
     if not dup_ids.empty:
@@ -606,6 +737,11 @@ elif page == T["pages"][4]:
     bad_arm = df[~df["arm"].isin(["", "L", "R"])]
     if not bad_arm.empty:
         issues.append((T["bad_arm"], bad_arm))
+    unstd = df[
+        (df["raw_name"].str.strip() != "") & (df["name"] == df["raw_name"])
+    ][["id", "_display_name", "raw_name", "date"]].drop_duplicates(subset=["raw_name"])
+    if not unstd.empty:
+        issues.append((T["dq_unstd"], unstd))
 
     if not issues:
         st.success(T["dq_ok"])
@@ -614,28 +750,40 @@ elif page == T["pages"][4]:
             st.error(f"⚠️ {title}  ({len(rows)})")
             st.dataframe(rows, use_container_width=True)
 
+    st.markdown("---")
+
+    # ── Vaccine name reference ────────────────────────────────────────────
+    st.markdown(f"#### {T['vac_names_title']}")
+    st.caption(T["vac_names_caption"])
+    names_df = load_vaccine_names()
+    if not names_df.empty:
+        st.dataframe(names_df, use_container_width=True, hide_index=True)
+
 # ════════════════════════════════════════════════════════════════════════════
 # Export
 # ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][5]:
+elif page == T["pages"][3]:
     st.title(T["export_title"])
     st.info(f"{T['export_info']} **{len(df)}** {T['export_cols']}`{', '.join(COLUMNS)}`")
 
     col_csv, col_pdf = st.columns(2)
 
-    # CSV download
-    csv_bytes = df.to_csv(index=False).encode("utf-8-sig")
+    # CSV includes raw_name for full fidelity
+    export_df = df[[c for c in COLUMNS if c in df.columns]].copy()
+    csv_bytes = export_df.to_csv(index=False).encode("utf-8-sig")
     col_csv.download_button(
         label=T["download"], data=csv_bytes,
         file_name="vaccine_records_export.csv", mime="text/csv", type="primary",
     )
 
-    # PDF download — generate on the fly so one click downloads directly
+    # PDF uses display names for readability
     with col_pdf:
         with st.spinner(""):
             try:
+                pdf_df = df.copy()
+                pdf_df["name"] = pdf_df["_display_name"]
                 pdf_bytes = build_pdf(
-                    df,
+                    pdf_df,
                     title=T["pdf_title"],
                     generated_label=T["pdf_generated"],
                     total_label=T["pdf_total"],
@@ -648,7 +796,11 @@ elif page == T["pages"][5]:
             except Exception as e:
                 st.error(f"PDF generation failed: {e}")
 
-    st.dataframe(df, use_container_width=True)
+    st.dataframe(
+        df[["id", "_display_name", "raw_name", "dose", "date",
+            "manufacturer", "batch", "arm", "provider"]],
+        use_container_width=True, hide_index=True,
+    )
 
 # ── Entry point: run via VSCode play button ───────────────────────────────────
 if __name__ == "__main__" and not os.environ.get("IS_STREAMLIT_CHILD"):
