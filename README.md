@@ -4,11 +4,10 @@ A **local-first** vaccination record dashboard built with [Streamlit](https://st
 
 ## Highlights
 
-- **Dashboard** — Totals, distinct vaccine counts, latest vaccination date, arm distribution (L/R), and charts (doses per year, arm split).
-- **Records** — Filter and search; edit rows inline; add entries; delete by ID with confirmation.
-- **Reports** — Timeline, doses by vaccine, doses by provider, yearly bar chart, arm pie chart.
-- **Export** — Download CSV (UTF-8 with BOM) or a styled **A4 PDF** table.
-- **Settings** — Choose **English** or **Traditional Chinese (正體中文)**; display vaccine names as **abbreviations** or **full names**; run **data quality** checks (duplicate IDs, bad dates/doses/arm values, unrecognized vaccine names); browse the vaccine name reference table.
+- **Overview** — KPIs and charts in one page: totals, latest date, yearly stats, timeline, vaccine/provider breakdown.
+- **Records** — Filter/search, inline edit, inline delete (checkbox + save), add records, and visual import (CSV/Excel with mapping + preview).
+- **Export** — Download CSV (UTF-8 with BOM) or a styled **A4 PDF** table with localized headers.
+- **Settings** — Choose **English** or **Traditional Chinese (正體中文)**; switch vaccine display mode; run data quality checks; view vaccine name references.
 
 ## Requirements
 
@@ -84,7 +83,17 @@ PDFs use [ReportLab](https://www.reportlab.com/) on **A4** with a teal header st
 
 ```text
 .
-├── app.py                      # Single-file Streamlit application
+├── app.py                      # App entry, routing, shared UI style
+├── core/
+│   ├── charts.py               # Shared chart palette + style helper
+│   ├── data_store.py           # CSV I/O, ID generation, vaccine alias mapping
+│   ├── i18n.py                 # Language dictionary (English / 正體中文)
+│   └── pdf_export.py           # PDF generation and CJK font fallback
+├── pages/
+│   ├── overview.py             # Overview page renderer
+│   ├── records.py              # Records page renderer (edit/delete/add/import)
+│   ├── export.py               # Export page renderer
+│   └── settings.py             # Settings and data-quality page renderer
 ├── vaccine_records_cleaned.csv # Your records (keep private if you use real health data)
 ├── vaccine_names.csv           # Vaccine aliases and display names
 ├── requirements.txt
