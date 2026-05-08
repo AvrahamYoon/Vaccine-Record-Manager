@@ -28,7 +28,7 @@ st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide"
 LANG = {
     "English": {
         "app_title": "Vaccine Records",
-        "pages": ["Dashboard", "Records", "Reports", "Export", "Settings"],
+        "pages": ["Overview", "Records", "Export", "Settings"],
         "total": "Total Doses", "kinds": "Vaccine Types", "last_date": "Last Vaccination",
         "left_arm": "Left Arm (L)", "right_arm": "Right Arm (R)",
         "yearly_chart": "Doses per Year", "arm_chart": "Arm Distribution",
@@ -49,6 +49,17 @@ LANG = {
         "reports_title": "Reports", "timeline": "Vaccination Timeline",
         "vac_count": "Doses by Vaccine", "provider_stat": "Doses by Provider",
         "yearly_stat": "Doses per Year", "arm_ratio": "Arm Distribution",
+        "import_title": "Import Records", "import_upload": "Upload CSV or Excel",
+        "import_help": "Map your file columns to app fields, preview, then import.",
+        "import_source_col": "Source column",
+        "import_empty": "— leave empty —",
+        "import_preview": "Preview (first 10 rows)",
+        "import_btn": "Import now",
+        "import_success": "Imported records:",
+        "import_fail": "No valid rows to import.",
+        "import_required": "Required fields: vaccine name, dose, date.",
+        "col_delete": "Delete",
+        "saved_with_delete": "Saved. Deleted",
         "export_title": "Export Data", "export_info": "Total",
         "export_cols": "records  ·  Columns: ", "download": "⬇️ Download CSV",
         "col_id": "ID", "col_name": "Vaccine", "col_dose": "Dose",
@@ -71,7 +82,7 @@ LANG = {
     },
     "正體中文": {
         "app_title": "疫苗接種記錄",
-        "pages": ["總覽", "記錄管理", "報表", "匯出", "設定"],
+        "pages": ["總覽", "記錄管理", "匯出", "設定"],
         "total": "總接種次數", "kinds": "疫苗種類", "last_date": "最近接種日期",
         "left_arm": "左臂 (L)", "right_arm": "右臂 (R)",
         "yearly_chart": "每年接種次數", "arm_chart": "左右臂比例",
@@ -92,6 +103,17 @@ LANG = {
         "reports_title": "報表", "timeline": "接種時間線",
         "vac_count": "每種疫苗接種次數", "provider_stat": "接種單位統計",
         "yearly_stat": "每年接種次數", "arm_ratio": "左右臂接種比例",
+        "import_title": "匯入記錄", "import_upload": "上傳 CSV 或 Excel",
+        "import_help": "先做欄位對應，再預覽，最後一鍵匯入。",
+        "import_source_col": "來源欄位",
+        "import_empty": "— 留空 —",
+        "import_preview": "預覽（前 10 筆）",
+        "import_btn": "開始匯入",
+        "import_success": "已匯入筆數：",
+        "import_fail": "沒有可匯入的有效資料。",
+        "import_required": "必要欄位：疫苗名稱、劑次、日期。",
+        "col_delete": "刪除",
+        "saved_with_delete": "已儲存。已刪除",
         "export_title": "匯出資料", "export_info": "共",
         "export_cols": "筆記錄　欄位：", "download": "⬇️ 下載 CSV",
         "col_id": "ID", "col_name": "疫苗名稱", "col_dose": "劑次",
@@ -136,7 +158,14 @@ def _register_cjk_font():
     return "Helvetica"  # ASCII fallback
 
 
-def build_pdf(df: pd.DataFrame, title: str, generated_label: str, total_label: str) -> bytes:
+def build_pdf(
+    df: pd.DataFrame,
+    title: str,
+    generated_label: str,
+    total_label: str,
+    *,
+    col_headers: list[str],
+) -> bytes:
     """Render the vaccine records dataframe as a styled A4 PDF and return bytes."""
     font_name = _register_cjk_font()
     buf = io.BytesIO()
@@ -164,11 +193,11 @@ def build_pdf(df: pd.DataFrame, title: str, generated_label: str, total_label: s
         textColor=colors.white, fontWeight="bold",
     )
 
-    col_labels = ["ID", "Vaccine / 疫苗", "Dose", "Date", "Manufacturer", "Batch", "Arm", "Provider / 接種單位"]
+
     col_widths = [10*mm, 28*mm, 12*mm, 22*mm, 28*mm, 22*mm, 10*mm, 42*mm]
 
     # Build table rows
-    header_row = [Paragraph(h, header_style) for h in col_labels]
+    header_row = [Paragraph(h, header_style) for h in col_headers]
     data_rows = []
     for _, row in df.iterrows():
         data_rows.append([
@@ -491,6 +520,45 @@ if page == T["pages"][0]:
         fig2.update_traces(textposition="outside", textinfo="percent+label")
         st.plotly_chart(fig2, use_container_width=True)
 
+    st.markdown("---")
+    st.markdown(f"#### {T['timeline']}")
+    df_r = df.copy()
+    df_r["date_parsed"] = pd.to_datetime(df_r["date"], errors="coerce")
+    df_r["year"] = df_r["date_parsed"].dt.year
+    timeline = df_r.dropna(subset=["date_parsed"]).sort_values("date_parsed")
+    fig_tl = px.scatter(
+        timeline, x="date_parsed", y="_display_name", color="_display_name",
+        hover_data=["dose", "provider", "arm"],
+        labels={"date_parsed": T["col_date"][:4], "_display_name": T["col_name"]},
+        color_discrete_sequence=px.colors.qualitative.Pastel,
+    )
+    fig_tl.update_traces(marker=dict(size=11, opacity=0.8, line=dict(width=1, color="#ffffff")))
+    apply_chart_style(fig_tl, showlegend=False, height=360)
+    st.plotly_chart(fig_tl, use_container_width=True)
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"#### {T['vac_count']}")
+        vc = df_r["_display_name"].value_counts().reset_index()
+        vc.columns = [T["col_name"], T["count"]]
+        fig_vc = px.bar(vc, x=T["count"], y=T["col_name"], orientation="h",
+                        color_discrete_sequence=[COLORS[0]])
+        apply_chart_style(fig_vc)
+        fig_vc.update_layout(yaxis={"categoryorder": "total ascending"})
+        fig_vc.update_traces(marker_line_width=0)
+        st.plotly_chart(fig_vc, use_container_width=True)
+
+    with col2:
+        st.markdown(f"#### {T['provider_stat']}")
+        pc = df_r["provider"].value_counts().reset_index()
+        pc.columns = [T["col_prov"], T["count"]]
+        fig_pc = px.bar(pc, x=T["count"], y=T["col_prov"], orientation="h",
+                        color_discrete_sequence=[COLORS[2]])
+        apply_chart_style(fig_pc)
+        fig_pc.update_layout(yaxis={"categoryorder": "total ascending"})
+        fig_pc.update_traces(marker_line_width=0)
+        st.plotly_chart(fig_pc, use_container_width=True)
+
 # ════════════════════════════════════════════════════════════════════════════
 # Records
 # ════════════════════════════════════════════════════════════════════════════
@@ -529,11 +597,14 @@ elif page == T["pages"][1]:
     st.caption(f"{T['showing']} {len(filtered)} {T['of']} {len(df)} {T['records']}")
 
     # Show display name column; hide internal name_en and _display_name
-    display_cols = ["id", "_display_name", "raw_name", "dose", "date",
+    filtered_editor = filtered.copy()
+    filtered_editor["__delete__"] = False
+    display_cols = ["__delete__", "id", "_display_name", "raw_name", "dose", "date",
                     "manufacturer", "batch", "arm", "provider"]
     edited = st.data_editor(
-        filtered[display_cols], use_container_width=True, num_rows="fixed",
+        filtered_editor[display_cols], use_container_width=True, num_rows="fixed",
         column_config={
+            "__delete__": st.column_config.CheckboxColumn(T["col_delete"], default=False),
             "id": st.column_config.NumberColumn(T["col_id"], disabled=True),
             "_display_name": st.column_config.TextColumn(T["col_name"], disabled=True),
             "raw_name": st.column_config.TextColumn(T["col_raw"], disabled=True),
@@ -548,37 +619,21 @@ elif page == T["pages"][1]:
     )
 
     if st.button(T["save"], type="primary"):
-        # Merge only the editable fields back; name/raw_name stay unchanged
+        # Delete checked rows first, then merge editable fields back.
+        delete_ids = edited.loc[edited["__delete__"] == True, "id"].dropna().astype(int).tolist()
+        if delete_ids:
+            df = df[~df["id"].isin(delete_ids)].reset_index(drop=True)
+        edited_kept = edited[edited["__delete__"] != True].copy()
+        kept_ids = edited_kept["id"].dropna().astype(int).tolist()
         for col in ["dose", "date", "manufacturer", "batch", "arm", "provider"]:
-            df.loc[df["id"].isin(filtered["id"]), col] = \
-                edited.set_index("id")[col].reindex(filtered["id"].values).values
+            df.loc[df["id"].isin(kept_ids), col] = \
+                edited_kept.set_index("id")[col].reindex(kept_ids).values
         save_data(df)
-        st.success(T["saved"])
-        st.rerun()
-
-    st.markdown("---")
-    st.markdown(f"**{T['delete_title']}**")
-    del_id = st.number_input(T["delete_id"], min_value=1, step=1, value=1)
-    if st.button(T["delete_btn"]):
-        if del_id in df["id"].values:
-            st.session_state["pending_delete"] = int(del_id)
+        if delete_ids:
+            st.success(f"{T['saved_with_delete']} {len(delete_ids)}")
         else:
-            st.warning(f"{T['not_found']} {del_id}")
-
-    if "pending_delete" in st.session_state:
-        pid = st.session_state["pending_delete"]
-        row = df[df["id"] == pid]
-        st.warning(f"{T['confirm_del']} — ID {pid}: {row['_display_name'].values[0]}, {row['date'].values[0]}")
-        c_yes, c_no, _ = st.columns([1, 1, 5])
-        if c_yes.button(T["yes_del"]):
-            df = df[df["id"] != pid].reset_index(drop=True)
-            save_data(df)
-            del st.session_state["pending_delete"]
-            st.success(f"ID {pid} {T['deleted']}")
-            st.rerun()
-        if c_no.button(T["cancel"]):
-            del st.session_state["pending_delete"]
-            st.rerun()
+            st.success(T["saved"])
+        st.rerun()
 
     # ── Add Record (embedded) ─────────────────────────────────────────────
     st.markdown("---")
@@ -623,82 +678,78 @@ elif page == T["pages"][1]:
                 st.success(f"{T['added']}{label} · {T['dose_label'][:-2]} {dose}{T['dose_suffix']}{new_row['id']})")
                 st.rerun()
 
-# ════════════════════════════════════════════════════════════════════════════
-# (Add Record page removed — merged into Records above)
-# ════════════════════════════════════════════════════════════════════════════
+    st.markdown("---")
+    with st.expander(T["import_title"], expanded=False):
+        st.caption(T["import_help"])
+        uploaded = st.file_uploader(T["import_upload"], type=["csv", "xlsx", "xls"], key="records_import_uploader")
+        if uploaded is not None:
+            if uploaded.name.lower().endswith(".csv"):
+                src_df = pd.read_csv(uploaded, dtype=str).fillna("")
+            else:
+                src_df = pd.read_excel(uploaded, dtype=str).fillna("")
 
-# ════════════════════════════════════════════════════════════════════════════
-# Reports
-# ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][2]:
-    st.title(T["reports_title"])
+            src_cols = src_df.columns.tolist()
+            options = [T["import_empty"]] + src_cols
+            field_map = {
+                "raw_name": T["col_raw"],
+                "dose": T["col_dose"],
+                "date": T["col_date"],
+                "manufacturer": T["col_mfr"],
+                "batch": T["col_batch"],
+                "arm": T["col_arm"],
+                "provider": T["col_prov"],
+            }
+            mapped = {}
+            map_cols = st.columns(2)
+            for i, (target, label) in enumerate(field_map.items()):
+                mapped[target] = map_cols[i % 2].selectbox(
+                    f"{label} ← {T['import_source_col']}",
+                    options,
+                    key=f"records_map_{target}",
+                )
 
-    df_r = df.copy()
-    df_r["date_parsed"] = pd.to_datetime(df_r["date"], errors="coerce")
-    df_r["year"] = df_r["date_parsed"].dt.year
+            preview_df = pd.DataFrame()
+            for target in field_map:
+                source = mapped[target]
+                preview_df[target] = "" if source == T["import_empty"] else src_df[source].astype(str).str.strip()
 
-    # Timeline scatter
-    st.markdown(f"#### {T['timeline']}")
-    timeline = df_r.dropna(subset=["date_parsed"]).sort_values("date_parsed")
-    fig_tl = px.scatter(
-        timeline, x="date_parsed", y="_display_name", color="_display_name",
-        hover_data=["dose", "provider", "arm"],
-        labels={"date_parsed": T["col_date"][:4], "_display_name": T["col_name"]},
-        color_discrete_sequence=px.colors.qualitative.Pastel,
-    )
-    fig_tl.update_traces(marker=dict(size=11, opacity=0.8, line=dict(width=1, color="#ffffff")))
-    apply_chart_style(fig_tl, showlegend=False, height=360)
-    st.plotly_chart(fig_tl, use_container_width=True)
+            preview_df["raw_name"] = preview_df["raw_name"].fillna("").astype(str).str.strip()
+            preview_df["dose"] = pd.to_numeric(preview_df["dose"], errors="coerce")
+            preview_df["date"] = pd.to_datetime(preview_df["date"], errors="coerce")
+            preview_df["date"] = preview_df["date"].dt.strftime("%Y-%m-%d")
+            preview_df["arm"] = preview_df["arm"].fillna("").astype(str).str.strip().str.upper()
+            preview_df["arm"] = preview_df["arm"].where(preview_df["arm"].isin(["L", "R"]), "")
 
-    col1, col2 = st.columns(2)
-    with col1:
-        st.markdown(f"#### {T['vac_count']}")
-        vc = df_r["_display_name"].value_counts().reset_index()
-        vc.columns = [T["col_name"], T["count"]]
-        fig_vc = px.bar(vc, x=T["count"], y=T["col_name"], orientation="h",
-                        color_discrete_sequence=[COLORS[0]])
-        apply_chart_style(fig_vc)
-        fig_vc.update_layout(yaxis={"categoryorder": "total ascending"})
-        fig_vc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_vc, use_container_width=True)
+            valid = (
+                (preview_df["raw_name"].str.strip() != "") &
+                preview_df["dose"].notna() &
+                preview_df["date"].notna()
+            )
+            st.markdown(f"#### {T['import_preview']}")
+            st.dataframe(preview_df.head(10), use_container_width=True, hide_index=True)
+            st.caption(f"{T['import_required']}  ({int(valid.sum())}/{len(preview_df)})")
 
-    with col2:
-        st.markdown(f"#### {T['provider_stat']}")
-        pc = df_r["provider"].value_counts().reset_index()
-        pc.columns = [T["col_prov"], T["count"]]
-        fig_pc = px.bar(pc, x=T["count"], y=T["col_prov"], orientation="h",
-                        color_discrete_sequence=[COLORS[2]])
-        apply_chart_style(fig_pc)
-        fig_pc.update_layout(yaxis={"categoryorder": "total ascending"})
-        fig_pc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_pc, use_container_width=True)
-
-    col3, col4 = st.columns(2)
-    with col3:
-        st.markdown(f"#### {T['yearly_stat']}")
-        yc = df_r.dropna(subset=["year"]).groupby("year").size().reset_index(name=T["count"])
-        yc["year"] = yc["year"].astype(int).astype(str)
-        fig_yc = px.bar(yc, x="year", y=T["count"], text=T["count"],
-                        color_discrete_sequence=[COLORS[1]])
-        apply_chart_style(fig_yc, xaxis_title=T["year"])
-        fig_yc.update_traces(marker_line_width=0, textposition="outside")
-        st.plotly_chart(fig_yc, use_container_width=True)
-
-    with col4:
-        st.markdown(f"#### {T['arm_ratio']}")
-        arm_df = df_r[df_r["arm"].isin(["L", "R"])]["arm"].value_counts().reset_index()
-        arm_df.columns = ["arm", T["count"]]
-        arm_df["arm"] = arm_df["arm"].map({"L": T["left_arm"], "R": T["right_arm"]})
-        fig_arm = px.pie(arm_df, names="arm", values=T["count"], hole=0.45,
-                         color_discrete_sequence=[COLORS[0], COLORS[1]])
-        apply_chart_style(fig_arm)
-        fig_arm.update_traces(textposition="outside", textinfo="percent+label")
-        st.plotly_chart(fig_arm, use_container_width=True)
+            if st.button(T["import_btn"], type="primary", key="records_import_btn"):
+                to_import = preview_df[valid].copy()
+                if to_import.empty:
+                    st.error(T["import_fail"])
+                else:
+                    names_df = load_vaccine_names()
+                    alias_map = build_alias_map(names_df)
+                    resolved = to_import["raw_name"].apply(lambda x: resolve_name(x, alias_map))
+                    to_import["name"] = resolved.apply(lambda x: x[0])
+                    start_id = next_id(df)
+                    to_import["id"] = range(start_id, start_id + len(to_import))
+                    to_import = to_import[["id", "name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]]
+                    new_df = pd.concat([df[COLUMNS], to_import], ignore_index=True)
+                    save_data(new_df)
+                    st.success(f"{T['import_success']} {len(to_import)}")
+                    st.rerun()
 
 # ════════════════════════════════════════════════════════════════════════════
 # Settings (language, name format, data quality, vaccine reference)
 # ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][4]:
+elif page == T["pages"][3]:
     st.title(T["settings_title"])
 
     # ── Display preferences ───────────────────────────────────────────────
@@ -767,7 +818,7 @@ elif page == T["pages"][4]:
 # ════════════════════════════════════════════════════════════════════════════
 # Export
 # ════════════════════════════════════════════════════════════════════════════
-elif page == T["pages"][3]:
+elif page == T["pages"][2]:
     st.title(T["export_title"])
     st.info(f"{T['export_info']} **{len(df)}** {T['export_cols']}`{', '.join(COLUMNS)}`")
 
@@ -787,11 +838,22 @@ elif page == T["pages"][3]:
             try:
                 pdf_df = df.copy()
                 pdf_df["name"] = pdf_df["_display_name"]
+                pdf_col_headers = [
+                    T["col_id"],
+                    T["col_name"],
+                    T["col_dose"],
+                    T["col_date"],
+                    T["col_mfr"],
+                    T["col_batch"],
+                    T["col_arm"],
+                    T["col_prov"],
+                ]
                 pdf_bytes = build_pdf(
                     pdf_df,
                     title=T["pdf_title"],
                     generated_label=T["pdf_generated"],
                     total_label=T["pdf_total"],
+                    col_headers=pdf_col_headers,
                 )
                 st.download_button(
                     label=T["download_pdf"], data=pdf_bytes,
