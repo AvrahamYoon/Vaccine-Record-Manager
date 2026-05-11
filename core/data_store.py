@@ -11,7 +11,56 @@ ARM_OPTIONS = ["", "L", "R"]
 def load_vaccine_names() -> pd.DataFrame:
     if not NAMES_FILE.exists():
         return pd.DataFrame(columns=["canonical_zh", "abbr_zh", "canonical_en", "abbr_en", "aliases"])
-    return pd.read_csv(NAMES_FILE, dtype=str).fillna("")
+    raw_df = pd.read_csv(NAMES_FILE, dtype=str).fillna("")
+    return _normalize_vaccine_names_columns(raw_df)
+
+
+def _first_non_empty(row: pd.Series, keys: list[str]) -> str:
+    for key in keys:
+        if key in row.index:
+            value = str(row.get(key, "")).strip()
+            if value:
+                return value
+    return ""
+
+
+def _normalize_vaccine_names_columns(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Accept simplified/traditional variants in vaccine_names.csv while standardizing
+    to canonical_zh (traditional display target) and related fields.
+    """
+    normalized_rows = []
+    for _, row in df.iterrows():
+        canonical_zh_tw = _first_non_empty(row, ["canonical_zh_tw", "canonical_zh_hant", "canonical_zh"])
+        canonical_zh_cn = _first_non_empty(row, ["canonical_zh_cn", "canonical_zh_hans"])
+        canonical_zh = canonical_zh_tw or canonical_zh_cn
+
+        abbr_zh_tw = _first_non_empty(row, ["abbr_zh_tw", "abbr_zh_hant", "abbr_zh"])
+        abbr_zh_cn = _first_non_empty(row, ["abbr_zh_cn", "abbr_zh_hans"])
+        abbr_zh = abbr_zh_tw or abbr_zh_cn
+        canonical_en = _first_non_empty(row, ["canonical_en"])
+        abbr_en = _first_non_empty(row, ["abbr_en"])
+
+        alias_parts = []
+        for key in ["aliases", "aliases_tw", "aliases_hant", "aliases_cn", "aliases_hans"]:
+            if key in row.index and str(row[key]).strip():
+                alias_parts.extend([a.strip() for a in str(row[key]).split("|") if a.strip()])
+        # Ensure simplified/traditional standards are both matchable as aliases.
+        for value in [canonical_zh_tw, canonical_zh_cn, abbr_zh_tw, abbr_zh_cn]:
+            if value:
+                alias_parts.append(value)
+        aliases = "|".join(alias_parts)
+
+        normalized_rows.append(
+            {
+                "canonical_zh": canonical_zh,
+                "abbr_zh": abbr_zh,
+                "canonical_en": canonical_en,
+                "abbr_en": abbr_en,
+                "aliases": aliases,
+            }
+        )
+    return pd.DataFrame(normalized_rows).fillna("")
 
 
 def build_alias_map(names_df: pd.DataFrame) -> dict:

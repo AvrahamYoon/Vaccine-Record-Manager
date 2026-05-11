@@ -6,10 +6,10 @@ import streamlit as st
 
 from core.data_store import load_data
 from core.i18n import LANG
-from pages.export import render_export_page
-from pages.overview import render_overview_page
-from pages.records import render_records_page
-from pages.settings import render_settings_page
+from views.export import render_export_page
+from views.overview import render_overview_page
+from views.records import render_records_page
+from views.settings import render_settings_page
 
 st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide")
 

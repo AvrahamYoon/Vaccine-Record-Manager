@@ -67,13 +67,20 @@ If your CSV uses older headers, they are renamed on load: `vaccine_name` → `na
 
 ### Vaccine name table (`vaccine_names.csv`)
 
-Expected columns:
+Primary expected columns:
 
 ```text
 canonical_zh, abbr_zh, canonical_en, abbr_en, aliases
 ```
 
-Pipe-separated **`aliases`** let you map many spellings or product strings to one canonical row. Names not listed are kept as typed and surfaced under **Settings → Data quality** so you can extend the table — no code change required.
+For Chinese compatibility (Scheme A), the app accepts dual-standard headers:
+
+- `canonical_zh_tw` / `canonical_zh_hant` (preferred traditional canonical name)
+- `canonical_zh_cn` / `canonical_zh_hans` (simplified canonical name)
+- `abbr_zh_tw` / `abbr_zh_hant` / `abbr_zh_cn` / `abbr_zh_hans`
+- `aliases_tw` / `aliases_hant` / `aliases_cn` / `aliases_hans`
+
+The app normalizes these into one internal standard and uses **traditional Chinese as the canonical display target** whenever provided. At the same time, simplified/traditional canonical names and abbreviations are both added to alias matching, so either script can map to the same vaccine entry.
 
 ## PDF export
 
@@ -89,11 +96,13 @@ PDFs use [ReportLab](https://www.reportlab.com/) on **A4** with a teal header st
 │   ├── data_store.py           # CSV I/O, ID generation, vaccine alias mapping
 │   ├── i18n.py                 # Language dictionary (English / 正體中文)
 │   └── pdf_export.py           # PDF generation and CJK font fallback
-├── pages/
-│   ├── overview.py             # Overview page renderer
-│   ├── records.py              # Records page renderer (edit/delete/add/import)
-│   ├── export.py               # Export page renderer
-│   └── settings.py             # Settings and data-quality page renderer
+├── views/                      # UI renderers (not named `pages/` — Streamlit reserves that folder)
+│   ├── overview.py
+│   ├── records.py
+│   ├── export.py
+│   └── settings.py
+├── scripts/
+│   └── expand_vaccine_aliases.py  # Optional: expand `aliases` with 简繁 variants (requires OpenCC)
 ├── vaccine_records_cleaned.csv # Your records (keep private if you use real health data)
 ├── vaccine_names.csv           # Vaccine aliases and display names
 ├── requirements.txt
