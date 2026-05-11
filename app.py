@@ -4,11 +4,13 @@ import sys
 
 import streamlit as st
 
+from core.auth import is_auth_gate_enabled, is_authenticated, set_authenticated
 from core.data_store import load_data
 from core.i18n import LANG
 from views.export import render_export_page
 from views.overview import render_overview_page
 from views.records import render_records_page
+from views.login import render_login_page
 from views.settings import render_settings_page
 
 st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide")
@@ -63,6 +65,11 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+_auth_on = is_auth_gate_enabled()
+if _auth_on and not is_authenticated():
+    render_login_page()
+    st.stop()
+
 with st.sidebar:
     st.markdown("<br>", unsafe_allow_html=True)
     lang_key = st.session_state.get("lang_select", "English")
@@ -73,6 +80,11 @@ with st.sidebar:
     )
     st.markdown("<hr style='margin:0 0 0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
     page = st.radio("nav", T["pages"], label_visibility="collapsed")
+    if _auth_on:
+        st.markdown("<hr style='margin:0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
+        if st.button(T["login_logout"], key="logout_btn"):
+            set_authenticated(False)
+            st.rerun()
 
 T = LANG[st.session_state.get("lang_select", "English")]
 lang_key = st.session_state.get("lang_select", "English")

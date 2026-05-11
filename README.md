@@ -8,6 +8,24 @@ A **local-first** vaccination record dashboard built with [Streamlit](https://st
 - **Records** — Filter/search, inline edit, inline delete (checkbox + save), add records, and visual import (CSV/Excel with mapping + preview).
 - **Export** — Download CSV (UTF-8 with BOM) or a styled **A4 PDF** table with localized headers.
 - **Settings** — Choose **English** or **Traditional Chinese (正體中文)**; switch vaccine display mode; run data quality checks; view vaccine name references.
+- **Sign-in** — Simple username/password gate before the app (see below).
+
+## Sign-in (default credentials)
+
+The app opens with a **login screen by default**:
+
+| Field | Default value |
+|-------|----------------|
+| Username | `admin` |
+| Password | `RO_760715` |
+
+**Why this password?** It is a small mnemonic for **15 July 1987** — the day **martial law was lifted** in **Taiwan (Republic of China, 中華民國)**, known in Chinese as **解嚴** (*jiěyán*). The string is not high security; it is meant as a memorable default for a personal/local tool and as a nod to that date.
+
+**Overrides** — Set `VACCINE_APP_USERNAME` and/or `VACCINE_APP_PASSWORD`, or add `login_username` / `login_password` to [`.streamlit/secrets.toml`](.streamlit/secrets.toml) (see [`.streamlit/secrets.toml.example`](.streamlit/secrets.toml.example)). Values in the environment or secrets file replace the built-in defaults.
+
+**Disable login** (e.g. local development): set environment variable `VACCINE_APP_NO_AUTH` to `1`, `true`, `yes`, or `on`.
+
+> **Note:** Default credentials are visible in the repository (`core/auth.py`). Anyone with clone access can sign in. For sensitive deployments, always override with secrets or env vars and do not rely on the default password alone.
 
 ## Requirements
 
@@ -15,10 +33,11 @@ A **local-first** vaccination record dashboard built with [Streamlit](https://st
 - Packages are pinned in [`requirements.txt`](requirements.txt):
 
   ```
-  streamlit>=1.32.0
+  streamlit>=1.44.0
   pandas>=2.0.0
   plotly>=5.18.0
   reportlab>=4.0.0
+  opencc-python-reimplemented>=0.1.7
   ```
 
 ## Quick start
@@ -92,11 +111,13 @@ PDFs use [ReportLab](https://www.reportlab.com/) on **A4** with a teal header st
 .
 ├── app.py                      # App entry, routing, shared UI style
 ├── core/
+│   ├── auth.py                 # Optional login gate (defaults + env / secrets overrides)
 │   ├── charts.py               # Shared chart palette + style helper
 │   ├── data_store.py           # CSV I/O, ID generation, vaccine alias mapping
 │   ├── i18n.py                 # Language dictionary (English / 正體中文)
 │   └── pdf_export.py           # PDF generation and CJK font fallback
 ├── views/                      # UI renderers (not named `pages/` — Streamlit reserves that folder)
+│   ├── login.py
 │   ├── overview.py
 │   ├── records.py
 │   ├── export.py
