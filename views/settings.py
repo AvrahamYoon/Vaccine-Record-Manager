@@ -58,11 +58,11 @@ def render_settings_page(df, T: dict, lang_key: str, use_abbr: bool):
     else:
         for title, rows in issues:
             st.error(f"⚠️ {title}  ({len(rows)})")
-            st.dataframe(rows, use_container_width=True)
+            st.dataframe(rows, width="stretch")
 
     st.markdown("---")
     st.markdown(f"#### {T['vac_names_title']}")
     st.caption(T["vac_names_caption"])
     names_df = load_vaccine_names()
     if not names_df.empty:
-        st.dataframe(names_df, use_container_width=True, hide_index=True)
+        st.dataframe(names_df, width="stretch", hide_index=True)

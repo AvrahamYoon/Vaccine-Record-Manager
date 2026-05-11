@@ -38,7 +38,7 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         fig = px.bar(yearly, x="year", y=T["count"], text=T["count"], color_discrete_sequence=[COLORS[0]])
         apply_chart_style(fig, xaxis_title=T["year"], yaxis_title=T["count"])
         fig.update_traces(marker_line_width=0, textposition="outside")
-        st.plotly_chart(fig, use_container_width=True)
+        st.plotly_chart(fig, width="stretch")
 
     with col_b:
         st.markdown(f"#### {T['arm_chart']}")
@@ -48,7 +48,7 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         fig2 = px.pie(arm_df, names="arm", values=T["count"], hole=0.45, color_discrete_sequence=[COLORS[0], COLORS[1]])
         apply_chart_style(fig2)
         fig2.update_traces(textposition="outside", textinfo="percent+label")
-        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig2, width="stretch")
 
     st.markdown("---")
     st.markdown(f"#### {T['timeline']}")
@@ -66,7 +66,7 @@ def render_overview_page(df: pd.DataFrame, T: dict):
     )
     fig_tl.update_traces(marker=dict(size=11, opacity=0.8, line=dict(width=1, color="#ffffff")))
     apply_chart_style(fig_tl, showlegend=False, height=360)
-    st.plotly_chart(fig_tl, use_container_width=True)
+    st.plotly_chart(fig_tl, width="stretch")
 
     col1, col2 = st.columns(2)
     with col1:
@@ -77,7 +77,7 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         apply_chart_style(fig_vc)
         fig_vc.update_layout(yaxis={"categoryorder": "total ascending"})
         fig_vc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_vc, use_container_width=True)
+        st.plotly_chart(fig_vc, width="stretch")
 
     with col2:
         st.markdown(f"#### {T['provider_stat']}")
@@ -87,4 +87,4 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         apply_chart_style(fig_pc)
         fig_pc.update_layout(yaxis={"categoryorder": "total ascending"})
         fig_pc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_pc, use_container_width=True)
+        st.plotly_chart(fig_pc, width="stretch")

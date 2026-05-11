@@ -54,6 +54,6 @@ def render_export_page(df, T: dict):
 
     st.dataframe(
         df[["id", "_display_name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]],
-        use_container_width=True,
+        width="stretch",
         hide_index=True,
     )

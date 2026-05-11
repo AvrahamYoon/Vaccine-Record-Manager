@@ -47,7 +47,7 @@ def render_records_page(df: pd.DataFrame, T: dict, lang_key: str, use_abbr: bool
     display_cols = ["__delete__", "id", "_display_name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]
     edited = st.data_editor(
         filtered_editor[display_cols],
-        use_container_width=True,
+        width="stretch",
         num_rows="fixed",
         column_config={
             "__delete__": st.column_config.CheckboxColumn(T["col_delete"], default=False),
@@ -168,7 +168,7 @@ def render_records_page(df: pd.DataFrame, T: dict, lang_key: str, use_abbr: bool
 
             valid = (preview_df["raw_name"].str.strip() != "") & preview_df["dose"].notna() & preview_df["date"].notna()
             st.markdown(f"#### {T['import_preview']}")
-            st.dataframe(preview_df.head(10), use_container_width=True, hide_index=True)
+            st.dataframe(preview_df.head(10), width="stretch", hide_index=True)
             st.caption(f"{T['import_required']}  ({int(valid.sum())}/{len(preview_df)})")
 
             if st.button(T["import_btn"], type="primary", key="records_import_btn"):
