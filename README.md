@@ -2,6 +2,18 @@
 
 A **local-first** vaccination record dashboard built with [Streamlit](https://streamlit.io/). Records live in CSV files beside the app — no database, no hosted account. You keep full ownership of your data.
 
+## Tech stack
+
+[![Python](https://img.shields.io/badge/Python-3776AB?style=flat&logo=python&logoColor=white)](https://www.python.org/)
+[![Streamlit](https://img.shields.io/badge/Streamlit-FF4B4B?style=flat&logo=streamlit&logoColor=white)](https://streamlit.io/)
+[![pandas](https://img.shields.io/badge/pandas-150458?style=flat&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
+[![Plotly](https://img.shields.io/badge/Plotly-239120?style=flat&logo=plotly&logoColor=white)](https://plotly.com/python/)
+[![DuckDB](https://img.shields.io/badge/DuckDB-FFD700?style=flat&logo=duckdb&logoColor=black)](https://duckdb.org/)
+[![SQL](https://img.shields.io/badge/SQL-4479A1?style=flat)](https://duckdb.org/docs/sql/introduction)
+[![ReportLab](https://img.shields.io/badge/ReportLab-333333?style=flat)](https://www.reportlab.com/)
+
+Badges from [Shields.io](https://shields.io/) (`style=flat`).
+
 ## Highlights
 
 - **Overview** — KPIs and charts in one page: totals, latest date, yearly stats, timeline, vaccine/provider breakdown.
@@ -37,6 +49,7 @@ The app opens with a **login screen by default**:
   pandas>=2.0.0
   plotly>=5.18.0
   reportlab>=4.0.0
+  duckdb>=1.0.0
   opencc-python-reimplemented>=0.1.7
   ```
 
@@ -56,6 +69,13 @@ streamlit run app.py
 ```
 
 Using **VS Code** or Cursor, the **Run** button on `app.py` uses the same `__main__` entry point, so one click starts the app.
+
+## Data loading (DuckDB + SQL)
+
+CSV reads go through **[DuckDB](https://duckdb.org/)** using plain **`.sql` files** under [`sql/`](sql/) (for example [`sql/load_records.sql`](sql/load_records.sql)). Python only loads the file text and passes the CSV path as a bound parameter — **no SQL literals embedded in Python**.
+
+- **Writes** still use **pandas `to_csv`** on `vaccine_records_cleaned.csv` (same on-disk format as before).
+- If DuckDB fails (missing dependency, bad path), **`load_data` / `load_vaccine_names` fall back to `pandas.read_csv`**.
 
 ## Data files
 
@@ -114,8 +134,12 @@ PDFs use [ReportLab](https://www.reportlab.com/) on **A4** with a teal header st
 │   ├── auth.py                 # Optional login gate (defaults + env / secrets overrides)
 │   ├── charts.py               # Shared chart palette + style helper
 │   ├── data_store.py           # CSV I/O, ID generation, vaccine alias mapping
+│   ├── duck_csv.py             # Run sql/*.sql via DuckDB to read CSV into pandas
 │   ├── i18n.py                 # Language dictionary (English / 正體中文)
 │   └── pdf_export.py           # PDF generation and CJK font fallback
+├── sql/                        # DuckDB queries (read_csv_auto); path bound from Python
+│   ├── load_records.sql
+│   └── load_vaccine_names.sql
 ├── views/                      # UI renderers (not named `pages/` — Streamlit reserves that folder)
 │   ├── login.py
 │   ├── overview.py

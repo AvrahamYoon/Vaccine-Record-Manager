@@ -2,6 +2,8 @@ from pathlib import Path
 
 import pandas as pd
 
+from core.duck_csv import read_csv_with_sql
+
 DATA_FILE = Path("vaccine_records_cleaned.csv")
 NAMES_FILE = Path("vaccine_names.csv")
 COLUMNS = ["id", "name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]
@@ -11,7 +13,10 @@ ARM_OPTIONS = ["", "L", "R"]
 def load_vaccine_names() -> pd.DataFrame:
     if not NAMES_FILE.exists():
         return pd.DataFrame(columns=["canonical_zh", "abbr_zh", "canonical_en", "abbr_en", "aliases"])
-    raw_df = pd.read_csv(NAMES_FILE, dtype=str).fillna("")
+    try:
+        raw_df = read_csv_with_sql(NAMES_FILE, "load_vaccine_names.sql").fillna("")
+    except Exception:
+        raw_df = pd.read_csv(NAMES_FILE, dtype=str).fillna("")
     return _normalize_vaccine_names_columns(raw_df)
 
 
@@ -88,7 +93,10 @@ def load_data() -> pd.DataFrame:
         df = pd.DataFrame(columns=COLUMNS)
         df.to_csv(DATA_FILE, index=False)
         return df
-    df = pd.read_csv(DATA_FILE, dtype=str)
+    try:
+        df = read_csv_with_sql(DATA_FILE, "load_records.sql")
+    except Exception:
+        df = pd.read_csv(DATA_FILE, dtype=str)
     df = df.rename(columns={"vaccine_name": "name", "vaccination_date": "date", "batch_no": "batch"})
     for col in COLUMNS:
         if col not in df.columns:
