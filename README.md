@@ -9,7 +9,7 @@ A **local-first** vaccination record dashboard built with [Streamlit](https://st
 [![pandas](https://img.shields.io/badge/pandas-150458?style=flat&logo=pandas&logoColor=white)](https://pandas.pydata.org/)
 [![Plotly](https://img.shields.io/badge/Plotly-239120?style=flat&logo=plotly&logoColor=white)](https://plotly.com/python/)
 [![DuckDB](https://img.shields.io/badge/DuckDB-FFD700?style=flat&logo=duckdb&logoColor=black)](https://duckdb.org/)
-[![SQL](https://img.shields.io/badge/SQL-4479A1?style=flat)](https://duckdb.org/docs/sql/introduction)
+[![SQL](https://img.shields.io/badge/SQL-005571?style=flat)](https://duckdb.org/docs/sql/introduction)
 [![ReportLab](https://img.shields.io/badge/ReportLab-333333?style=flat)](https://www.reportlab.com/)
 
 Badges from [Shields.io](https://shields.io/) (`style=flat`).
