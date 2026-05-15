@@ -16,11 +16,14 @@ def render_overview_page(df: pd.DataFrame, T: dict):
     right = int((df["arm"] == "R").sum())
 
     cols = st.columns(5)
-    for col, label, value in zip(
-        cols, [T["total"], T["kinds"], T["last_date"], T["left_arm"], T["right_arm"]], [total, kinds, last_date_str, left, right]
-    ):
+    labels = [T["total"], T["kinds"], T["last_date"], T["left_arm"], T["right_arm"]]
+    values = [total, kinds, last_date_str, left, right]
+    
+    for i, (col, label, value) in enumerate(zip(cols, labels, values)):
+        # Only add 'stat-number' class if it's not the date column (index 2)
+        number_class = "stat-number" if i != 2 else ""
         col.markdown(
-            f'<div class="stat-card"><div class="stat-label">{label}</div><div class="stat-value">{value}</div></div>',
+            f'<div class="stat-card"><div class="stat-label">{label}</div><div class="stat-value {number_class}">{value}</div></div>',
             unsafe_allow_html=True,
         )
 

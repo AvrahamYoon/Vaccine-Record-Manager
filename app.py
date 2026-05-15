@@ -7,6 +7,7 @@ import streamlit as st
 from core.auth import is_auth_gate_enabled, is_authenticated, set_authenticated
 from core.data_store import load_data
 from core.i18n import LANG
+from core.ui import init_custom_ui
 from views.export import render_export_page
 from views.overview import render_overview_page
 from views.records import render_records_page
@@ -15,14 +16,8 @@ from views.settings import render_settings_page
 
 st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide")
 
-
-# Load external CSS
-def load_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
-
-
-load_css("assets/style.css")
+# Initialize custom UI components from assets/ folder
+init_custom_ui()
 
 _auth_on = is_auth_gate_enabled()
 if _auth_on and not is_authenticated():
