@@ -15,55 +15,14 @@ from views.settings import render_settings_page
 
 st.set_page_config(page_title="Vaccine Records", page_icon="💉", layout="wide")
 
-st.markdown(
-    """
-<style>
-    .stApp { background: #f5f6fa; }
-    .block-container { padding: 2rem 2.5rem; max-width: 1180px; }
-    [data-testid="stSidebar"] { background: #ffffff; border-right: 1px solid #e8eaed; }
-    [data-testid="stSidebar"] .stRadio > label { display: none; }
-    [data-testid="stSidebar"] .stRadio div[role="radiogroup"] { gap: 2px; }
-    [data-testid="stSidebar"] .stRadio label {
-        padding: 0.55rem 0.9rem !important; border-radius: 8px !important; font-size: 0.9rem !important;
-        color: #4b5563 !important; font-weight: 500 !important; cursor: pointer; transition: background 0.15s;
-    }
-    [data-testid="stSidebar"] .stRadio label:hover { background: #f0f2f5 !important; }
-    [data-testid="stSidebar"] .stRadio label[data-baseweb="radio"] span:first-child { display: none; }
-    .stat-card {
-        background: #ffffff; border-radius: 12px; padding: 1.1rem 1rem 1rem 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 8px rgba(0,0,0,0.04); text-align: center;
-    }
-    .stat-label {
-        font-size: 0.72rem; color: #9ca3af; font-weight: 600; letter-spacing: 0.06em;
-        text-transform: uppercase; margin-bottom: 0.4rem;
-    }
-    .stat-value { font-size: 1.75rem; font-weight: 700; color: #111827; line-height: 1.1; }
-    h1 {
-        font-size: 1.5rem !important; font-weight: 700 !important; color: #111827 !important;
-        margin-bottom: 1.2rem !important; padding-bottom: 0.6rem !important; border-bottom: 1px solid #e8eaed !important;
-    }
-    h4 { color: #374151 !important; font-size: 0.95rem !important; font-weight: 600 !important; margin-bottom: 0.5rem !important; }
-    .stButton > button[kind="primary"] {
-        background: #4f7df3 !important; border: none !important; border-radius: 8px !important; font-weight: 600 !important; color: white !important;
-    }
-    .stButton > button[kind="primary"]:hover { background: #3b6de0 !important; }
-    .stButton > button[kind="secondary"] { border-radius: 8px !important; border-color: #d1d5db !important; color: #374151 !important; }
-    [data-testid="stExpander"] {
-        background: #ffffff; border-radius: 10px !important; border: 1px solid #e8eaed !important; box-shadow: none !important;
-    }
-    [data-testid="stForm"] {
-        background: #ffffff; border-radius: 12px; padding: 1.5rem !important;
-        border: 1px solid #e8eaed !important; box-shadow: 0 1px 3px rgba(0,0,0,0.05) !important;
-    }
-    hr { border-color: #e8eaed; margin: 1.2rem 0; }
-    [data-testid="stSidebar"] .stSelectbox label { color: #6b7280 !important; font-size: 0.8rem !important; }
-    [data-testid="stSidebar"] .stSelectbox > div > div {
-        background: #f9fafb !important; border-color: #e5e7eb !important; border-radius: 8px !important; color: #374151 !important;
-    }
-</style>
-""",
-    unsafe_allow_html=True,
-)
+
+# Load external CSS
+def load_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
+
+
+load_css("assets/style.css")
 
 _auth_on = is_auth_gate_enabled()
 if _auth_on and not is_authenticated():

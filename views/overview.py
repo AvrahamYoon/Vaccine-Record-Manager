@@ -37,18 +37,26 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         yearly["year"] = yearly["year"].astype(int).astype(str)
         fig = px.bar(yearly, x="year", y=T["count"], text=T["count"], color_discrete_sequence=[COLORS[0]])
         apply_chart_style(fig, xaxis_title=T["year"], yaxis_title=T["count"])
-        fig.update_traces(marker_line_width=0, textposition="outside")
-        st.plotly_chart(fig, width="stretch")
+        fig.update_traces(
+            marker_line_width=0, 
+            textposition="outside",
+            hovertemplate="<b>%{x}</b><br>" + T["count"] + ": %{y}<extra></extra>"
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     with col_b:
         st.markdown(f"#### {T['arm_chart']}")
         arm_df = df[df["arm"].isin(["L", "R"])]["arm"].value_counts().reset_index()
         arm_df.columns = ["arm", T["count"]]
         arm_df["arm"] = arm_df["arm"].map({"L": T["left_arm"], "R": T["right_arm"]})
-        fig2 = px.pie(arm_df, names="arm", values=T["count"], hole=0.45, color_discrete_sequence=[COLORS[0], COLORS[1]])
+        fig2 = px.pie(arm_df, names="arm", values=T["count"], hole=0.5, color_discrete_sequence=[COLORS[0], COLORS[2]])
         apply_chart_style(fig2)
-        fig2.update_traces(textposition="outside", textinfo="percent+label")
-        st.plotly_chart(fig2, width="stretch")
+        fig2.update_traces(
+            textposition="outside", 
+            textinfo="percent+label",
+            hovertemplate="<b>%{label}</b><br>" + T["count"] + ": %{value} (%{percent})<extra></extra>"
+        )
+        st.plotly_chart(fig2, use_container_width=True)
 
     st.markdown("---")
     st.markdown(f"#### {T['timeline']}")
@@ -62,11 +70,14 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         color="_display_name",
         hover_data=["dose", "provider", "arm"],
         labels={"date_parsed": T["col_date"][:4], "_display_name": T["col_name"]},
-        color_discrete_sequence=px.colors.qualitative.Pastel,
+        color_discrete_sequence=px.colors.qualitative.Safe,
     )
-    fig_tl.update_traces(marker=dict(size=11, opacity=0.8, line=dict(width=1, color="#ffffff")))
-    apply_chart_style(fig_tl, showlegend=False, height=360)
-    st.plotly_chart(fig_tl, width="stretch")
+    fig_tl.update_traces(
+        marker=dict(size=12, opacity=0.7, line=dict(width=1.5, color="#ffffff")),
+        hovertemplate="<b>%{y}</b><br>" + T["col_date"] + ": %{x}<br>" + T["col_dose"] + ": %{customdata[0]}<br>" + T["col_prov"] + ": %{customdata[1]}<extra></extra>"
+    )
+    apply_chart_style(fig_tl, showlegend=False, height=400)
+    st.plotly_chart(fig_tl, use_container_width=True)
 
     col1, col2 = st.columns(2)
     with col1:
@@ -76,15 +87,21 @@ def render_overview_page(df: pd.DataFrame, T: dict):
         fig_vc = px.bar(vc, x=T["count"], y=T["col_name"], orientation="h", color_discrete_sequence=[COLORS[0]])
         apply_chart_style(fig_vc)
         fig_vc.update_layout(yaxis={"categoryorder": "total ascending"})
-        fig_vc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_vc, width="stretch")
+        fig_vc.update_traces(
+            marker_line_width=0,
+            hovertemplate="<b>%{y}</b><br>" + T["count"] + ": %{x}<extra></extra>"
+        )
+        st.plotly_chart(fig_vc, use_container_width=True)
 
     with col2:
         st.markdown(f"#### {T['provider_stat']}")
         pc = df_r["provider"].value_counts().reset_index()
         pc.columns = [T["col_prov"], T["count"]]
-        fig_pc = px.bar(pc, x=T["count"], y=T["col_prov"], orientation="h", color_discrete_sequence=[COLORS[2]])
+        fig_pc = px.bar(pc, x=T["count"], y=T["col_prov"], orientation="h", color_discrete_sequence=[COLORS[1]])
         apply_chart_style(fig_pc)
         fig_pc.update_layout(yaxis={"categoryorder": "total ascending"})
-        fig_pc.update_traces(marker_line_width=0)
-        st.plotly_chart(fig_pc, width="stretch")
+        fig_pc.update_traces(
+            marker_line_width=0,
+            hovertemplate="<b>%{y}</b><br>" + T["count"] + ": %{x}<extra></extra>"
+        )
+        st.plotly_chart(fig_pc, use_container_width=True)
