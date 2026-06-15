@@ -9,13 +9,17 @@ import os
 import streamlit as st
 from streamlit.runtime.secrets import StreamlitSecretNotFoundError
 
+from core.data_store import is_demo_mode
+
 # Defaults (override with VACCINE_APP_USERNAME / VACCINE_APP_PASSWORD or .streamlit/secrets.toml)
 DEFAULT_LOGIN_USERNAME = "admin"
 DEFAULT_LOGIN_PASSWORD = "RO_760715"
 
 
 def is_auth_gate_enabled() -> bool:
-    """If False, the app runs without any login (for local dev / CI)."""
+    """If False, the app runs without any login (for local dev / CI / demo)."""
+    if is_demo_mode():
+        return False
     v = os.environ.get("VACCINE_APP_NO_AUTH", "").strip().lower()
     return v not in ("1", "true", "yes", "on")
 

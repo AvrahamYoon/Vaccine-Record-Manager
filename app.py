@@ -5,7 +5,7 @@ import sys
 import streamlit as st
 
 from core.auth import is_auth_gate_enabled, is_authenticated, set_authenticated
-from core.data_store import load_data
+from core.data_store import is_demo_mode, load_data
 from core.i18n import LANG
 from core.ui import init_custom_ui
 from views.export import render_export_page
@@ -33,6 +33,8 @@ with st.sidebar:
         unsafe_allow_html=True,
     )
     st.markdown("<hr style='margin:0 0 0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)
+    if is_demo_mode():
+        st.info(T["demo_banner"])
     page = st.radio("nav", T["pages"], label_visibility="collapsed")
     if _auth_on:
         st.markdown("<hr style='margin:0.8rem 0;border-color:#e8eaed'>", unsafe_allow_html=True)

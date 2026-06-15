@@ -101,6 +101,7 @@ LANG = {
         "login_submit": "Sign in",
         "login_error": "Incorrect password.",
         "login_logout": "Sign out",
+        "demo_banner": "Demo mode — sample data only. You can add, edit, and delete records to try the app; changes last for this visit and reset when the app restarts.",
     },
     "正體中文": {
         "app_title": "疫苗接種記錄",
@@ -204,5 +205,6 @@ LANG = {
         "login_submit": "登入",
         "login_error": "密碼錯誤。",
         "login_logout": "登出",
+        "demo_banner": "示範模式 — 目前為範例資料。可新增、修改、刪除記錄以體驗功能；變更僅在本次瀏覽有效，應用重啟後會還原。",
     },
 }

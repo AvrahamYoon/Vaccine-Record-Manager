@@ -1,22 +1,55 @@
+import os
 from pathlib import Path
 
 import pandas as pd
 
 from core.duck_csv import read_csv_with_sql
 
-DATA_FILE = Path("vaccine_records_cleaned.csv")
-NAMES_FILE = Path("vaccine_names.csv")
+
+def is_demo_mode() -> bool:
+    env = os.environ.get("VACCINE_APP_DEMO", "").strip().lower()
+    if env in ("0", "false", "no", "off"):
+        return False
+    if env in ("1", "true", "yes", "on"):
+        return True
+    try:
+        import streamlit as st
+
+        secret = str(st.secrets.get("VACCINE_APP_DEMO", "")).strip().lower()
+        if secret in ("0", "false", "no", "off"):
+            return False
+        if secret in ("1", "true", "yes", "on"):
+            return True
+    except Exception:
+        pass
+    root_records = Path("vaccine_records_cleaned.csv")
+    demo_records = Path("demo/vaccine_records_cleaned.csv")
+    return not root_records.exists() and demo_records.is_file()
+
+
+def _data_dir() -> Path:
+    return Path("demo") if is_demo_mode() else Path(".")
+
+
+def data_file() -> Path:
+    return _data_dir() / "vaccine_records_cleaned.csv"
+
+
+def names_file() -> Path:
+    return Path("vaccine_names.csv")
+
 COLUMNS = ["id", "name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]
 ARM_OPTIONS = ["", "L", "R"]
 
 
 def load_vaccine_names() -> pd.DataFrame:
-    if not NAMES_FILE.exists():
+    path = names_file()
+    if not path.exists():
         return pd.DataFrame(columns=["canonical_zh", "abbr_zh", "canonical_en", "abbr_en", "aliases"])
     try:
-        raw_df = read_csv_with_sql(NAMES_FILE, "load_vaccine_names.sql").fillna("")
+        raw_df = read_csv_with_sql(path, "load_vaccine_names.sql").fillna("")
     except Exception:
-        raw_df = pd.read_csv(NAMES_FILE, dtype=str).fillna("")
+        raw_df = pd.read_csv(path, dtype=str).fillna("")
     return _normalize_vaccine_names_columns(raw_df)
 
 
@@ -89,14 +122,15 @@ def resolve_name(raw: str, alias_map: dict) -> tuple:
 
 
 def load_data() -> pd.DataFrame:
-    if not DATA_FILE.exists():
+    path = data_file()
+    if not path.exists():
         df = pd.DataFrame(columns=COLUMNS)
-        df.to_csv(DATA_FILE, index=False)
+        df.to_csv(path, index=False)
         return df
     try:
-        df = read_csv_with_sql(DATA_FILE, "load_records.sql")
+        df = read_csv_with_sql(path, "load_records.sql")
     except Exception:
-        df = pd.read_csv(DATA_FILE, dtype=str)
+        df = pd.read_csv(path, dtype=str)
     df = df.rename(columns={"vaccine_name": "name", "vaccination_date": "date", "batch_no": "batch"})
     for col in COLUMNS:
         if col not in df.columns:
@@ -128,7 +162,7 @@ def load_data() -> pd.DataFrame:
 
 def save_data(df: pd.DataFrame):
     cols_to_save = [c for c in COLUMNS if c in df.columns]
-    df[cols_to_save].to_csv(DATA_FILE, index=False)
+    df[cols_to_save].to_csv(data_file(), index=False)
 
 
 def next_id(df: pd.DataFrame) -> int:

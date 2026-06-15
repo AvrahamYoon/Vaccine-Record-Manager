@@ -1,0 +1,35 @@
+id,name,raw_name,dose,date,manufacturer,batch,arm,provider
+1,,BCG,1,2017-03-08,Tokyo 172,BCG170308,L,National Taiwan University Hospital
+2,,Hepatitis B vaccine,1,2017-03-08,Merck,ENB1703A,R,National Taiwan University Hospital
+3,,Hepatitis B vaccine,2,2017-04-08,Merck,ENB1704B,L,National Taiwan University Hospital
+4,,DTaP-IPV-Hib,1,2017-05-08,Sanofi,PEN1705A,L,Dr. Lin Pediatric Clinic
+5,,Prevnar 13,1,2017-05-08,Pfizer,PCV1705A,R,Dr. Lin Pediatric Clinic
+6,,RotaTeq,1,2017-05-08,Merck,RV1705A,,Dr. Lin Pediatric Clinic
+7,,DTaP-IPV-Hib,2,2017-07-08,Sanofi,PEN1707A,L,Dr. Lin Pediatric Clinic
+8,,Prevnar 13,2,2017-07-08,Pfizer,PCV1707A,R,Dr. Lin Pediatric Clinic
+9,,RotaTeq,2,2017-07-08,Merck,RV1707A,,Dr. Lin Pediatric Clinic
+10,,DTaP-IPV-Hib,3,2017-09-08,Sanofi,PEN1709A,L,Dr. Lin Pediatric Clinic
+11,,Hepatitis B vaccine,3,2017-09-08,Merck,ENB1709C,R,Dr. Lin Pediatric Clinic
+12,,Prevnar 13,3,2017-09-08,Pfizer,PCV1709A,L,Dr. Lin Pediatric Clinic
+13,,Influenza vaccine,1,2017-10-14,Sanofi,FL1710A,R,Community Health Center Da'an District
+14,,M-M-R II,1,2018-03-08,Merck,MMR1803A,L,Dr. Lin Pediatric Clinic
+15,,Varivax,1,2018-03-08,Merck,VAR1803A,R,Dr. Lin Pediatric Clinic
+16,,Hepatitis A vaccine,1,2018-03-08,GSK,HAV1803A,L,Dr. Lin Pediatric Clinic
+17,,Imojev,1,2018-06-08,Takeda,JE1806A,L,Mackay Memorial Hospital
+18,,DTaP-IPV-Hib,4,2018-09-08,Sanofi,PEN1809B,R,Dr. Lin Pediatric Clinic
+19,,Hepatitis A vaccine,2,2018-09-08,GSK,HAV1809B,L,Dr. Lin Pediatric Clinic
+20,,Influenza vaccine,1,2018-10-20,Adimmune,FL1810B,R,Community Health Center Da'an District
+21,,Imojev,2,2018-12-08,Takeda,JE1812A,R,Mackay Memorial Hospital
+22,,Imojev,3,2019-09-08,Takeda,JE1909B,R,Mackay Memorial Hospital
+23,,Influenza vaccine,1,2019-10-12,Adimmune,FL1910A,L,Community Health Center Da'an District
+24,,Influenza vaccine,1,2020-10-18,Sanofi,FL2010A,L,Community Health Center Da'an District
+25,,Influenza vaccine,1,2021-10-16,Adimmune,FL2110B,R,Community Health Center Da'an District
+26,,M-M-R II,2,2022-03-05,Merck,MMR2203A,L,Taipei City Hospital Songde Branch
+27,,DTaP,1,2022-03-05,Sanofi,DTAP2203A,R,Taipei City Hospital Songde Branch
+28,,Varivax,2,2022-03-05,Merck,VAR2203B,L,Taipei City Hospital Songde Branch
+29,,Influenza vaccine,1,2022-10-08,Adimmune,FL2210A,R,Community Health Center Da'an District
+30,,Comirnaty,1,2022-11-20,Pfizer-BioNTech,EP9598,L,Mackay Memorial Hospital
+31,,Comirnaty,2,2022-12-11,Pfizer-BioNTech,FN3863,R,Mackay Memorial Hospital
+32,,Influenza vaccine,1,2023-10-14,Sanofi,FL2310A,L,Community Health Center Da'an District
+33,,Influenza vaccine,1,2024-10-12,Adimmune,FL2410B,R,Community Health Center Da'an District
+34,,Influenza vaccine,1,2025-10-11,Sanofi,FL2510A,L,Community Health Center Da'an District
