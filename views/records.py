@@ -39,7 +39,7 @@ def render_records_page(df: pd.DataFrame, T: dict, lang_key: str, use_abbr: bool
     elif sel_arm == T["unfilled"]:
         filtered = filtered[filtered["arm"] == ""]
 
-    filtered = filtered.sort_values("date", ascending=False).reset_index(drop=True)
+    filtered = filtered.sort_values("date", ascending=True).reset_index(drop=True)
     st.caption(f"{T['showing']} {len(filtered)} {T['of']} {len(df)} {T['records']}")
 
     filtered_editor = filtered.copy()
@@ -72,7 +72,7 @@ def render_records_page(df: pd.DataFrame, T: dict, lang_key: str, use_abbr: bool
         kept_ids = edited_kept["id"].dropna().astype(int).tolist()
         for col in ["dose", "date", "manufacturer", "batch", "arm", "provider"]:
             df.loc[df["id"].isin(kept_ids), col] = edited_kept.set_index("id")[col].reindex(kept_ids).values
-        save_data(df)
+        df = save_data(df)
         if delete_ids:
             st.success(f"{T['saved_with_delete']} {len(delete_ids)}")
         else:
@@ -119,9 +119,13 @@ def render_records_page(df: pd.DataFrame, T: dict, lang_key: str, use_abbr: bool
                     "provider": provider.strip(),
                 }
                 df = pd.concat([df, pd.DataFrame([new_row])], ignore_index=True)
-                save_data(df)
+                df = save_data(df)
+                mask = (df["date"] == new_row["date"]) & (df["name"] == zh) & (df["raw_name"] == raw_input)
+                matched = df.loc[mask]
+                new_id = int(matched["id"].iloc[0])
+                new_dose = int(matched["dose"].iloc[0])
                 label = aen if (lang_key == "English" and use_abbr) else en if lang_key == "English" else azh if use_abbr else zh
-                st.success(f"{T['added']}{label} · {T['dose_label'][:-2]} {dose}{T['dose_suffix']}{new_row['id']})")
+                st.success(f"{T['added']}{label} · {T['dose_label'][:-2]} {new_dose}{T['dose_suffix']}{new_id})")
                 st.rerun()
 
     st.markdown("---")

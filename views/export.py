@@ -1,6 +1,6 @@
 import streamlit as st
 
-from core.data_store import COLUMNS
+from core.data_store import COLUMNS, normalize_records
 from core.pdf_export import build_pdf
 
 
@@ -10,7 +10,8 @@ def render_export_page(df, T: dict):
 
     col_csv, col_pdf = st.columns(2)
 
-    export_df = df[[c for c in COLUMNS if c in df.columns]].copy()
+    sorted_df = normalize_records(df)
+    export_df = sorted_df[[c for c in COLUMNS if c in sorted_df.columns]].copy()
     csv_bytes = export_df.to_csv(index=False).encode("utf-8-sig")
     col_csv.download_button(
         label=T["download"],
@@ -23,7 +24,7 @@ def render_export_page(df, T: dict):
     with col_pdf:
         with st.spinner(""):
             try:
-                pdf_df = df.copy()
+                pdf_df = sorted_df.copy()
                 pdf_df["name"] = pdf_df["_display_name"]
                 pdf_col_headers = [
                     T["col_id"],
@@ -53,7 +54,7 @@ def render_export_page(df, T: dict):
                 st.error(f"PDF generation failed: {e}")
 
     st.dataframe(
-        df[["id", "_display_name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]],
+        sorted_df[["id", "_display_name", "raw_name", "dose", "date", "manufacturer", "batch", "arm", "provider"]],
         width="stretch",
         hide_index=True,
     )

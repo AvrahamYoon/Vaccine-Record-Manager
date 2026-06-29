@@ -157,12 +157,28 @@ def load_data() -> pd.DataFrame:
     df["name_en"] = resolved["name_en"]
     df["abbr_en"] = resolved["abbr_en"]
     df["raw_name"] = resolved["raw_name"]
-    return df
+    return normalize_records(df)
 
 
-def save_data(df: pd.DataFrame):
+def normalize_records(df: pd.DataFrame) -> pd.DataFrame:
+    """Sort by date ascending, reassign id 1..n, and renumber dose per vaccine by date."""
+    if df.empty:
+        return df
+    out = df.copy()
+    out["_date_parsed"] = pd.to_datetime(out["date"], errors="coerce")
+    out = out.sort_values(["name", "_date_parsed"], ascending=[True, True], na_position="last")
+    out["dose"] = out.groupby("name", sort=False).cumcount() + 1
+    out = out.sort_values(["_date_parsed", "name", "dose"], ascending=[True, True, True], na_position="last")
+    out = out.drop(columns=["_date_parsed"]).reset_index(drop=True)
+    out["id"] = range(1, len(out) + 1)
+    return out
+
+
+def save_data(df: pd.DataFrame) -> pd.DataFrame:
+    df = normalize_records(df)
     cols_to_save = [c for c in COLUMNS if c in df.columns]
     df[cols_to_save].to_csv(data_file(), index=False)
+    return df
 
 
 def next_id(df: pd.DataFrame) -> int:
